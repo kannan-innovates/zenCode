@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { error } from "node:console";
+
 
 const redisConfig = {
      host: process.env.REDIS_HOST || 'localhost',
@@ -13,8 +13,8 @@ redisClient.on('connect',()=>{
      console.log('REDIS CONNECTION SUCCESSFUL');
 });
 
-redisClient.on('error',()=>{
-     console.error('REDIS CONNECTION FAILED',error);
+redisClient.on('error',(err)=>{
+     console.error('REDIS CONNECTION FAILED',err);
 });
 
 export default redisClient;
