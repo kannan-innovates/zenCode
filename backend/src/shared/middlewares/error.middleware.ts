@@ -3,25 +3,24 @@ import { STATUS_CODES } from '../constants/status';
 import { sendError } from '../utils/response.util';
 
 export const errorHandler = (
-     err: any,
-     req: Request,
-     res: Response,
-     next: NextFunction,
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): void => {
+  /**
+   * If error already has statusCode (custom errors later)
+   */
+  const statusCode =
+    err.statusCode && Number.isInteger(err.statusCode)
+      ? err.statusCode
+      : STATUS_CODES.INTERNAL_SERVER_ERROR;
 
-     const statusCode =
-          err.statusCode && Number.isInteger(err.statusCode)
-               ? err.statusCode
-               : STATUS_CODES.INTERNAL_SERVER_ERROR;
+  const message =
+    err.message || 'Something went wrong';
 
-     const message =
-          err.message || 'Something went wrong';
-
-     sendError(
-          res,
-          message,
-          statusCode,
-          err.code,      
-          err.details,  
-     );
+  sendError(res, {
+    message,
+    statusCode,
+  });
 };
