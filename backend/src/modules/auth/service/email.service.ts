@@ -28,7 +28,7 @@ export class EmailService {
             <h1 style="background: #4F46E5; color: white; padding: 15px; text-align: center; border-radius: 8px;">
               ${otp}
             </h1>
-            <p>This code will expire in 10 minutes.</p>
+            <p>This code will expire in 5 minutes.</p>
             <p>If you didn't request this code, please ignore this email.</p>
             <hr style="margin: 20px 0;">
             <p style="color: #666; font-size: 12px;">zenCode - Real-time Coding Interview Platform</p>
@@ -37,7 +37,7 @@ export class EmailService {
                };
 
                await this.transporter.sendMail(mailOptions);
-               console.log(`OTP email sent to ${email}`);
+               console.log(`OTP for ${email} is ${otp}`);
           } catch (error) {
                console.error('Error sending OTP email:', error);
                throw new Error('Failed to send email');
