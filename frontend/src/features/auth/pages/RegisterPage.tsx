@@ -4,9 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authService } from '../services/auth.service';
-import { useAppDispatch } from '../../../app/hook';
-import { setRegistrationEmail } from '../store/auth.slice';
-import { showSuccess,  } from '../../../shared/utils/toast.util';
+import { showSuccess } from '../../../shared/utils/toast.util';
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -22,7 +20,6 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -37,11 +34,11 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       await authService.register(data);
-      dispatch(setRegistrationEmail(data.email));
+      sessionStorage.setItem('registrationEmail', data.email);
       showSuccess('OTP sent to your email');
       navigate('/verify-otp');
     } catch (error) {
-      
+      // Error already shown by axios interceptor
     } finally {
       setIsLoading(false);
     }

@@ -1,24 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
-import { useAppSelector, useAppDispatch } from '../../../app/hook';
-import { clearRegistrationEmail } from '../store/auth.slice';
 import { showSuccess, showError } from '../../../shared/utils/toast.util';
 
 const OTPVerificationPage = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const email = useAppSelector((state) => state.auth.registrationEmail);
-
+  const [email, setEmail] = useState<string | null>(null);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (!email) {
+    const storedEmail = sessionStorage.getItem('registrationEmail');
+    if (!storedEmail) {
       navigate('/register');
+      return;
     }
-  }, [email, navigate]);
+    setEmail(storedEmail);
+  }, [navigate]);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -99,14 +98,18 @@ const OTPVerificationPage = () => {
     try {
       await authService.verifyOTP({ email, otp: otpValue });
       showSuccess('Registration successful! Please login.');
-      dispatch(clearRegistrationEmail());
+      sessionStorage.removeItem('registrationEmail');
       navigate('/login');
     } catch (error) {
-      
+      // Error already shown by axios interceptor
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!email) {
+    return null;
+  }
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
