@@ -1,0 +1,4 @@
+export const OTP_LIMITS = {
+     RESEND_COOLDOWN_SECONDS: 60,
+     MAX_RESEND_ATTEMPTS: 3,
+}

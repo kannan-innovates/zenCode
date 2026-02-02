@@ -13,4 +13,9 @@ router.post(
   authController.verifyRegistration.bind(authController)
 );
 
+router.post(
+  '/resend-otp',
+  authController.resendOTP.bind(authController)
+);
+
 export default router;
