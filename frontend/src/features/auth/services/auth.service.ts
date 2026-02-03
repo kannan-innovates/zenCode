@@ -1,6 +1,15 @@
 import api from "../../../shared/lib/axios";
 import type { RegistrationRequest, VerifyOTPRequest } from "../types/auth.types";
 
+interface LoginResponse {
+     success: boolean;
+     message: string;
+     data: {
+          accessToken: string;
+          refreshToken: string;
+     };
+}
+
 export const authService = {
 
      register: async (data: RegistrationRequest) => {
@@ -16,6 +25,11 @@ export const authService = {
      resendOTP: async (email: string) => {
           const response = await api.post('/auth/resend-otp', { email });
           return response.data;
+     },
+
+     login: async (data: { email: string; password: string }): Promise<LoginResponse['data']> => {
+          const response = await api.post<LoginResponse>('/auth/login', data);
+          return response.data.data;
      },
 
 }

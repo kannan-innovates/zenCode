@@ -7,7 +7,7 @@ export const AUTH_MESSAGES = {
   LOGOUT_SUCCESS: 'Logged out successfully',
   PASSWORD_RESET_LINK_SENT: 'Password reset link sent to your email',
   PASSWORD_RESET_SUCCESS: 'Password reset successful',
-  
+
   // Errors
   INVALID_CREDENTIALS: 'Invalid email or password',
   USER_NOT_FOUND: 'User not found',
@@ -17,6 +17,12 @@ export const AUTH_MESSAGES = {
   EMAIL_ALREADY_EXISTS: 'Email already registered',
   INVALID_TOKEN: 'Invalid or expired token',
   UNAUTHORIZED: 'Unauthorized access',
+  PASSWORDS_DO_NOT_MATCH: 'Passwords do not match',
+  REGISTRATION_NOT_FOUND: 'No pending registration found',
+  OTP_COOLDOWN_ACTIVE: 'Please wait before requesting another OTP',
+  OTP_RESEND_LIMIT_EXCEEDED: 'OTP resend limit exceeded',
+  REGISTRATION_DATA_EXPIRED: 'Registration data expired',
+  EMAIL_SEND_FAILED: 'Failed to send email',
 };
 
 export const USER_MESSAGES = {

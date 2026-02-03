@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { STATUS_CODES } from '../constants/status';
 import { sendError } from '../utils/response.util';
+import { AppError } from '../utils/AppError';
 
 export const errorHandler = (
   err: any,
@@ -8,19 +9,18 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ): void => {
-  /**
-   * If error already has statusCode (custom errors later)
-   */
   const statusCode =
-    err.statusCode && Number.isInteger(err.statusCode)
+    err instanceof AppError
       ? err.statusCode
       : STATUS_CODES.INTERNAL_SERVER_ERROR;
 
   const message =
-    err.message || 'Something went wrong';
+    err instanceof AppError
+      ? err.message
+      : 'Something went wrong';
 
   sendError(res, {
-    message,
     statusCode,
+    message,
   });
 };

@@ -4,6 +4,9 @@ import { authRepository } from "../auth.repository";
 import { otpService } from "./otp.service";
 import { passwordService } from "../../../shared/utils/password.util";
 import { UserRole } from "../../../shared/constants/roles";
+import { AppError } from "../../../shared/utils/AppError";
+import { STATUS_CODES } from "../../../shared/constants/status";
+import { AUTH_MESSAGES } from "../../../shared/constants/messages";
 
 export class RegistrationService {
      private _emailService = new EmailService();
@@ -12,12 +15,18 @@ export class RegistrationService {
           const { fullName, email, password, confirmPassword } = input;
 
           if (password !== confirmPassword) {
-               throw new Error("Passwords do not match");
+               throw new AppError(
+                    AUTH_MESSAGES.PASSWORDS_DO_NOT_MATCH,
+                    STATUS_CODES.BAD_REQUEST
+               );
           }
 
           const existingUser = await authRepository.findByEmail(email);
           if (existingUser) {
-               throw new Error("Email already registered");
+               throw new AppError(
+                    AUTH_MESSAGES.EMAIL_ALREADY_EXISTS,
+                    STATUS_CODES.CONFLICT
+               );
           }
 
           const otp = otpService.generateOTP();
@@ -39,13 +48,19 @@ export class RegistrationService {
           const isValid = await otpService.verifyOTP(email, otp);
 
           if (!isValid) {
-               throw new Error('Invalid or Expired OTP');
+               throw new AppError(
+                    AUTH_MESSAGES.INVALID_OTP,
+                    STATUS_CODES.BAD_REQUEST
+               );
           }
 
           const regData = await otpService.getRegistrationData<RegistrationCacheData>(email);
 
           if (!regData) {
-               throw new Error('Registration Data expired');
+               throw new AppError(
+                    AUTH_MESSAGES.REGISTRATION_DATA_EXPIRED,
+                    STATUS_CODES.BAD_REQUEST
+               );
           }
 
           const hashedPassword = await passwordService.hash(regData.password);

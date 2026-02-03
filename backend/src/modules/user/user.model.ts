@@ -2,10 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { UserRole } from '../../shared/constants/roles';
 
 export interface IUser extends Document {
+  id: string;
   fullName: string;
   email: string;
   password?: string; 
-  role: string;
+  role: UserRole;
   avatarUrl?: string;
   isBlocked: boolean;
   isPremium: boolean;

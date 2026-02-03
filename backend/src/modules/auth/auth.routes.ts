@@ -18,4 +18,11 @@ router.post(
   authController.resendOTP.bind(authController)
 );
 
+router.post(
+  '/login',
+  authController.login.bind(authController)
+);
+
+
+
 export default router;

@@ -1,4 +1,7 @@
 import nodemailer, { Transporter } from 'nodemailer';
+import { AppError } from '../../../shared/utils/AppError';
+import { STATUS_CODES } from '../../../shared/constants/status';
+import { AUTH_MESSAGES } from '../../../shared/constants/messages';
 
 export class EmailService {
      private transporter: Transporter;
@@ -40,7 +43,10 @@ export class EmailService {
                console.log(`OTP for ${email} is ${otp}`);
           } catch (error) {
                console.error('Error sending OTP email:', error);
-               throw new Error('Failed to send email');
+               throw new AppError(
+                    AUTH_MESSAGES.EMAIL_SEND_FAILED,
+                    STATUS_CODES.INTERNAL_SERVER_ERROR
+               );
           }
      }
 }

@@ -102,56 +102,60 @@ const OTPVerificationPage = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const otpValue = otp.join('');
-    if (otpValue.length !== 6) {
-      showError('Please enter complete OTP');
-      return;
+  const otpValue = otp.join('');
+  if (otpValue.length !== 6) {
+    showError('Please enter complete OTP');
+    return;
+  }
+
+  if (!email) {
+    showError('Email not found. Please register again.');
+    navigate('/register');
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    await authService.verifyOTP({ email, otp: otpValue });
+    showSuccess('Registration successful! Please login.');
+    sessionStorage.removeItem('registrationEmail');
+    sessionStorage.removeItem('otpResendCooldown');
+    navigate('/login');
+  } catch (error: any) {
+    if (error.response?.status >= 400 && error.response?.status < 500) {
+      const message = error.response?.data?.message || 'Verification failed';
+      showError(message);
     }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    if (!email) {
-      showError('Email not found. Please register again.');
-      navigate('/register');
-      return;
+const handleResendOTP = async () => {
+  if (!email || countdown > 0 || isResending) return;
+
+  setIsResending(true);
+  try {
+    await authService.resendOTP(email);
+    showSuccess('OTP resent successfully');
+    
+    const cooldownEnd = Date.now() + (RESEND_COOLDOWN * 1000);
+    sessionStorage.setItem('otpResendCooldown', cooldownEnd.toString());
+    setCountdown(RESEND_COOLDOWN);
+    
+    setOtp(['', '', '', '', '', '']);
+    inputRefs.current[0]?.focus();
+  } catch (error: any) {
+    if (error.response?.status >= 400 && error.response?.status < 500) {
+      const message = error.response?.data?.message || 'Failed to resend OTP';
+      showError(message);
     }
-
-    setIsLoading(true);
-    try {
-      await authService.verifyOTP({ email, otp: otpValue });
-      showSuccess('Registration successful! Please login.');
-      sessionStorage.removeItem('registrationEmail');
-      sessionStorage.removeItem('otpResendCooldown');
-      navigate('/login');
-    } catch (error) {
-      // Error already shown by axios interceptor
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    if (!email || countdown > 0 || isResending) return;
-
-    setIsResending(true);
-    try {
-      await authService.resendOTP(email);
-      showSuccess('OTP resent successfully');
-      
-      // Start cooldown
-      const cooldownEnd = Date.now() + (RESEND_COOLDOWN * 1000);
-      sessionStorage.setItem('otpResendCooldown', cooldownEnd.toString());
-      setCountdown(RESEND_COOLDOWN);
-      
-      // Clear OTP inputs
-      setOtp(['', '', '', '', '', '']);
-      inputRefs.current[0]?.focus();
-    } catch (error) {
-      // Error already shown by axios interceptor
-    } finally {
-      setIsResending(false);
-    }
-  };
+  } finally {
+    setIsResending(false);
+  }
+};
 
   if (!email) {
     return null;
