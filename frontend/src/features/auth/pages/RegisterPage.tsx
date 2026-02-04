@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authService } from '../services/auth.service';
-import { showSuccess,showError } from '../../../shared/utils/toast.util';
+import { showSuccess, showError } from '../../../shared/utils/toast.util';
 import Navbar from '../../../shared/components/Navbar';
 
 
@@ -32,23 +32,23 @@ const RegisterPage = () => {
     resolver: zodResolver(registerSchema),
   });
 
- const onSubmit = async (data: RegisterFormData) => {
-  setIsLoading(true);
-  try {
-    await authService.register(data);
-    sessionStorage.setItem('registrationEmail', data.email);
-    showSuccess('OTP sent to your email');
-    navigate('/verify-otp');
-  } catch (error: any) {
-    // Handle 4xx errors
-    if (error.response?.status >= 400 && error.response?.status < 500) {
-      const message = error.response?.data?.message || 'Registration failed';
-      showError(message);
+  const onSubmit = async (data: RegisterFormData) => {
+    setIsLoading(true);
+    try {
+      await authService.register(data);
+      sessionStorage.setItem('registrationEmail', data.email);
+      showSuccess('OTP sent to your email');
+      navigate('/verify-otp');
+    } catch (error: any) {
+      // Handle 4xx errors
+      if (error.response?.status >= 400 && error.response?.status < 500) {
+        const message = error.response?.data?.message || 'Registration failed';
+        showError(message);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <>
@@ -80,9 +80,8 @@ const RegisterPage = () => {
                     {...register('fullName')}
                     type="text"
                     placeholder="Jane Doe"
-                    className={`w-full rounded-lg bg-[#272b3a] border ${
-                      errors.fullName ? 'border-red-500' : 'border-transparent'
-                    } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
+                    className={`w-full rounded-lg bg-[#272b3a] border ${errors.fullName ? 'border-red-500' : 'border-transparent'
+                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
                   />
                   {errors.fullName && (
                     <span className="text-red-500 text-sm">{errors.fullName.message}</span>
@@ -98,9 +97,8 @@ const RegisterPage = () => {
                     {...register('email')}
                     type="email"
                     placeholder="jane@example.com"
-                    className={`w-full rounded-lg bg-[#272b3a] border ${
-                      errors.email ? 'border-red-500' : 'border-transparent'
-                    } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
+                    className={`w-full rounded-lg bg-[#272b3a] border ${errors.email ? 'border-red-500' : 'border-transparent'
+                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
                   />
                   {errors.email && (
                     <span className="text-red-500 text-sm">{errors.email.message}</span>
@@ -116,9 +114,8 @@ const RegisterPage = () => {
                     {...register('password')}
                     type="password"
                     placeholder="••••••••"
-                    className={`w-full rounded-lg bg-[#272b3a] border ${
-                      errors.password ? 'border-red-500' : 'border-transparent'
-                    } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
+                    className={`w-full rounded-lg bg-[#272b3a] border ${errors.password ? 'border-red-500' : 'border-transparent'
+                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
                   />
                   {errors.password && (
                     <span className="text-red-500 text-sm">{errors.password.message}</span>
@@ -134,9 +131,8 @@ const RegisterPage = () => {
                     {...register('confirmPassword')}
                     type="password"
                     placeholder="••••••••"
-                    className={`w-full rounded-lg bg-[#272b3a] border ${
-                      errors.confirmPassword ? 'border-red-500' : 'border-transparent'
-                    } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
+                    className={`w-full rounded-lg bg-[#272b3a] border ${errors.confirmPassword ? 'border-red-500' : 'border-transparent'
+                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 px-4`}
                   />
                   {errors.confirmPassword && (
                     <span className="text-red-500 text-sm">{errors.confirmPassword.message}</span>
@@ -155,8 +151,10 @@ const RegisterPage = () => {
                 {/* Google Sign In */}
                 <button
                   type="button"
-                  disabled
-                  className="w-full h-12 rounded-lg bg-[#1e2230] hover:bg-[#252938] text-white font-medium transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    window.location.href = 'http://localhost:5001/api/auth/google';
+                  }}
+                  className="w-full h-12 rounded-lg bg-[#1e2230] hover:bg-[#252938] text-white font-medium transition-all flex items-center justify-center gap-3"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path

@@ -75,11 +75,14 @@ export class LoginService {
           }
      }
 
-     async refresh(refreshToken: string): Promise<string> {
+     async refresh(refreshToken: string): Promise<{
+          accessToken: string;
+          refreshToken: string;
+     }> {
           const payload = verifyRefreshToken(refreshToken);
 
-          const refreshKey = REDIS_KEYS.REFRESH_TOKEN(payload.tokenId);
-          const storedUserId = await CacheService.get<string>(refreshKey);
+          const oldRefreshKey = REDIS_KEYS.REFRESH_TOKEN(payload.tokenId);
+          const storedUserId = await CacheService.get<string>(oldRefreshKey);
 
           if (!storedUserId || storedUserId !== payload.sub) {
                throw new AppError(
@@ -90,7 +93,6 @@ export class LoginService {
 
           const user = await authRepository.findById(payload.sub);
 
-
           if (!user || user.isBlocked) {
                throw new AppError(
                     AUTH_MESSAGES.UNAUTHORIZED,
@@ -98,15 +100,32 @@ export class LoginService {
                );
           }
 
+          // 🔥 ROTATION: invalidate old refresh token
+          await CacheService.del(oldRefreshKey);
+
           user.lastActiveDate = new Date();
           await user.save();
 
-          const accessToken = generateAccessToken({
-               sub: user.id,
-               role: user.role,
-          });
+          // 🔥 ISSUE NEW TOKENS
+          const { accessToken, refreshToken: newRefreshToken, refreshTokenId } =
+               TokenService.generateAuthTokens({
+                    id: user.id,
+                    role: user.role,
+               });
 
-          return accessToken;
+          const newRefreshKey = REDIS_KEYS.REFRESH_TOKEN(refreshTokenId);
+          const refreshTTL = parseExpiryToSeconds(REFRESH_TOKEN_EXPIRY);
+
+          await CacheService.set(
+               newRefreshKey,
+               user.id,
+               refreshTTL
+          );
+
+          return {
+               accessToken,
+               refreshToken: newRefreshToken,
+          };
      }
 
      async logout(refreshToken: string): Promise<void> {

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import OTPVerificationPage from '../features/auth/pages/OTPVerificationPage';
 import LoginPage from '../features/auth/pages/LoginPage';
+import GoogleCallbackPage from '../features/auth/pages/GoogleCallbackPage';
 import { tokenService } from '../shared/lib/token';
 
 const AppRoutes = () => {
@@ -11,6 +12,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify-otp" element={<OTPVerificationPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/auth/google/success" element={<GoogleCallbackPage />} />
       
       <Route
         path="/dashboard"

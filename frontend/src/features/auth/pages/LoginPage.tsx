@@ -7,6 +7,7 @@ import { authService } from '../services/auth.service';
 import { tokenService } from '../../../shared/lib/token';
 import { showError, showSuccess } from '../../../shared/utils/toast.util';
 import Navbar from '../../../shared/components/Navbar';
+import { GoogleLogin } from '@react-oauth/google';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,27 +29,27 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-  setIsLoading(true);
-  try {
-    const response = await authService.login(data);
-    
-    // Store tokens
-    tokenService.setAccessToken(response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    
-    showSuccess('Login successful');
-    navigate('/dashboard');
-  } catch (error: any) {
-    // Handle 4xx errors (validation, invalid credentials)
-    if (error.response?.status >= 400 && error.response?.status < 500) {
-      const message = error.response?.data?.message || 'Login failed';
-      showError(message);
+    setIsLoading(true);
+    try {
+      const response = await authService.login(data);
+
+      // Store tokens
+      tokenService.setAccessToken(response.accessToken);
+
+
+      showSuccess('Login successful');
+      navigate('/dashboard');
+    } catch (error: any) {
+      // Handle 4xx errors (validation, invalid credentials)
+      if (error.response?.status >= 400 && error.response?.status < 500) {
+        const message = error.response?.data?.message || 'Login failed';
+        showError(message);
+      }
+      // 5xx errors are already handled by interceptor
+    } finally {
+      setIsLoading(false);
     }
-    // 5xx errors are already handled by interceptor
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <>
@@ -81,9 +82,8 @@ const LoginPage = () => {
                       {...register('email')}
                       type="email"
                       placeholder="name@zencode.dev"
-                      className={`w-full rounded-lg bg-[#272b3a] border ${
-                        errors.email ? 'border-red-500' : 'border-transparent'
-                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 pl-12 pr-4`}
+                      className={`w-full rounded-lg bg-[#272b3a] border ${errors.email ? 'border-red-500' : 'border-transparent'
+                        } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 pl-12 pr-4`}
                     />
                   </div>
                   {errors.email && (
@@ -96,8 +96,8 @@ const LoginPage = () => {
                     <label className="text-white text-sm font-medium">
                       Password
                     </label>
-                    <Link 
-                      to="/forgot-password" 
+                    <Link
+                      to="/forgot-password"
                       className="text-[var(--color-primary)] text-sm hover:underline"
                     >
                       Forgot Password?
@@ -113,9 +113,8 @@ const LoginPage = () => {
                       {...register('password')}
                       type="password"
                       placeholder="••••••••"
-                      className={`w-full rounded-lg bg-[#272b3a] border ${
-                        errors.password ? 'border-red-500' : 'border-transparent'
-                      } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 pl-12 pr-4`}
+                      className={`w-full rounded-lg bg-[#272b3a] border ${errors.password ? 'border-red-500' : 'border-transparent'
+                        } text-white placeholder-gray-500 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all h-12 pl-12 pr-4`}
                     />
                   </div>
                   {errors.password && (
@@ -152,8 +151,10 @@ const LoginPage = () => {
 
                 <button
                   type="button"
-                  disabled
-                  className="w-full h-12 rounded-lg bg-[#1e2230] hover:bg-[#252938] text-white font-medium transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    window.location.href = 'http://localhost:5001/api/auth/google';
+                  }}
+                  className="w-full h-12 rounded-lg bg-[#1e2230] hover:bg-[#252938] text-white font-medium transition-all flex items-center justify-center gap-3"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path

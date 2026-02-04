@@ -5,6 +5,9 @@ import { STATUS_CODES } from "../../shared/constants/status";
 import { AUTH_MESSAGES } from "../../shared/constants/messages";
 import { ResendOTPService } from "./service/resend-otp-service";
 import { LoginService } from "./service/login.service";
+import { AppError } from "../../shared/utils/AppError";
+import { googleAuthService, } from "./service/google-auth.service";
+
 
 export class AuthController {
 
@@ -105,11 +108,21 @@ export class AuthController {
                const refreshToken = req.cookies?.refreshToken;
 
                if (!refreshToken) {
-                    throw new Error(AUTH_MESSAGES.UNAUTHORIZED);
+                    throw new AppError(
+                         AUTH_MESSAGES.UNAUTHORIZED,
+                         STATUS_CODES.UNAUTHORIZED
+                    );
                }
 
-               const accessToken =
+               const { accessToken, refreshToken: newRefreshToken } =
                     await this._loginService.refresh(refreshToken);
+
+               res.cookie('refreshToken', newRefreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
+               });
 
                sendSuccess(res, {
                     statusCode: STATUS_CODES.OK,
@@ -147,6 +160,46 @@ export class AuthController {
                next(error);
           }
      }
+
+     // GET | auth/google
+     googleAuth(req: Request, res: Response, next: NextFunction): void {
+          // Handled by Passport middleware
+     }
+
+     async googleCallback(
+          req: Request,
+          res: Response,
+          next: NextFunction
+     ): Promise<void> {
+          try {
+               const profile = req.user as any;
+
+               if (!profile) {
+                    throw new AppError(
+                         'Google authentication failed',
+                         STATUS_CODES.UNAUTHORIZED
+                    );
+               }
+
+               const { accessToken, refreshToken } =
+                    await googleAuthService.authenticateGoogleUser(profile);
+
+               // Set refresh token in cookie
+               res.cookie('refreshToken', refreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                    maxAge: 7 * 24 * 60 * 60 * 1000,
+               });
+
+               // Redirect to frontend with access token
+               const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+               res.redirect(`${frontendUrl}/auth/google/success?token=${accessToken}`);
+          } catch (error) {
+               next(error);
+          }
+     }
+
 }
 
 export const authController = new AuthController();

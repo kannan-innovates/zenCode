@@ -9,6 +9,7 @@ const api = axios.create({
      headers: {
           'Content-Type': 'application/json',
      },
+     withCredentials: true,
 });
 
 // Request Interceptor - Add token to headers
@@ -74,14 +75,11 @@ api.interceptors.response.use(
                isRefreshing = true;
 
                try {
-                    const refreshToken = localStorage.getItem('refreshToken');
-
-                    if (!refreshToken) {
-                         throw new Error('No refresh token');
-                    }
-
-                    // Call refresh endpoint
-                    const response = await api.post('/auth/refresh', { refreshToken });
+                    const response = await api.post(
+                         '/auth/refresh',
+                         {},
+                         { withCredentials: true }
+                    );
                     const newAccessToken = response.data.data.accessToken;
 
                     // Update token

@@ -6,7 +6,6 @@ interface LoginResponse {
      message: string;
      data: {
           accessToken: string;
-          refreshToken: string;
      };
 }
 
@@ -31,5 +30,8 @@ export const authService = {
           const response = await api.post<LoginResponse>('/auth/login', data);
           return response.data.data;
      },
-
+     googleLogin: async (idToken: string) => {
+          const response = await api.post('/auth/google', { idToken });
+          return response.data.data;
+     },
 }

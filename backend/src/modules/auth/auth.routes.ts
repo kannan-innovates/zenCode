@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authController } from './auth.controller';
+import passport from '../../config/passport';
 
 const router = Router();
 
@@ -21,6 +22,17 @@ router.post(
 router.post(
   '/login',
   authController.login.bind(authController)
+);
+
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  authController.googleCallback.bind(authController)
 );
 
 
