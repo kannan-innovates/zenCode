@@ -7,6 +7,7 @@ import { ResendOTPService } from "./service/resend-otp-service";
 import { LoginService } from "./service/login.service";
 import { AppError } from "../../shared/utils/AppError";
 import { googleAuthService, } from "./service/google-auth.service";
+import { PasswordService } from "./service/password.service";
 
 
 export class AuthController {
@@ -14,6 +15,7 @@ export class AuthController {
      private readonly _registrationService = new RegistrationService();
      private readonly _resendOTPService = new ResendOTPService();
      private readonly _loginService = new LoginService();
+     private readonly _passwordService = new PasswordService();
 
      // POST | auth/register
      async startRegistration(
@@ -195,6 +197,60 @@ export class AuthController {
                // Redirect to frontend with access token
                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
                res.redirect(`${frontendUrl}/auth/google/success?token=${accessToken}`);
+          } catch (error) {
+               next(error);
+          }
+     }
+
+     //POST | forgot-password
+     async forgotPassword(req: Request, res: Response, next: NextFunction) {
+          try {
+               await this._passwordService.forgotPassword(req.body.email);
+
+               sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    message: AUTH_MESSAGES.PASSWORD_RESET_LINK_SENT,
+               });
+          } catch (error) {
+               next(error);
+          }
+     }
+
+     //POST | reset-password
+     async resetPassword(req: Request, res: Response, next: NextFunction) {
+          try {
+               const { token, newPassword } = req.body;
+
+               await this._passwordService.resetPassword(token, newPassword);
+
+               sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS,
+               });
+          } catch (error) {
+               next(error);
+          }
+     }
+
+     // GET | auth/reset-password/validate
+     async validateResetToken(
+          req: Request,
+          res: Response,
+          next: NextFunction
+     ): Promise<void> {
+          try {
+               const { token } = req.query;
+
+               if (!token || typeof token !== 'string') {
+                    throw new AppError('Token is required', STATUS_CODES.BAD_REQUEST);
+               }
+
+               const isValid = await this._passwordService.validateResetToken(token);
+
+               sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    data: { valid: isValid },
+               });
           } catch (error) {
                next(error);
           }

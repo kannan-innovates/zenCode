@@ -26,9 +26,8 @@ export class GoogleAuthService {
         fullName: profile.displayName,
         email: email,
         googleId: googleId,
-        avatarUrl: profile.photos?.[0]?.value,
         role: UserRole.CANDIDATE,
-        isEmailVerified: true, 
+        isEmailVerified: true,
       });
     } else {
       // Update existing user with Google ID if not present

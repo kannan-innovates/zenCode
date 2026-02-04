@@ -1,3 +1,4 @@
+import { OTP_LIMITS } from './otp.constants';
 
 export const AUTH_MESSAGES = {
   // Success
@@ -19,8 +20,8 @@ export const AUTH_MESSAGES = {
   UNAUTHORIZED: 'Unauthorized access',
   PASSWORDS_DO_NOT_MATCH: 'Passwords do not match',
   REGISTRATION_NOT_FOUND: 'No pending registration found',
-  OTP_COOLDOWN_ACTIVE: 'Please wait before requesting another OTP',
-  OTP_RESEND_LIMIT_EXCEEDED: 'OTP resend limit exceeded',
+  OTP_COOLDOWN_ACTIVE: `Please wait ${OTP_LIMITS.RESEND_COOLDOWN_SECONDS} seconds before requesting another code`,
+  OTP_RESEND_LIMIT_EXCEEDED: `Maximum retry attempts reached. Please try again in ${Math.ceil((OTP_LIMITS.RESEND_COOLDOWN_SECONDS * 10) / 60)} minutes.`,
   REGISTRATION_DATA_EXPIRED: 'Registration data expired',
   EMAIL_SEND_FAILED: 'Failed to send email',
 };
