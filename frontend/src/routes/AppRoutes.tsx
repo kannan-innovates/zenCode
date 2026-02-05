@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from '../features/auth/pages/LandingPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import OTPVerificationPage from '../features/auth/pages/OTPVerificationPage';
 import LoginPage from '../features/auth/pages/LoginPage';
@@ -10,7 +11,7 @@ import { tokenService } from '../shared/lib/token';
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<LandingPage/>} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/verify-otp" element={<OTPVerificationPage />} />
       <Route path="/login" element={<LoginPage />} />
