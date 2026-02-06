@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { UserRole } from '../../shared/constants/roles';
 
+
 export interface IUser extends Document {
   id: string;
   fullName: string;
   email: string;
-  password?: string; 
+  password?: string;
   role: UserRole;
   avatarUrl?: string;
   isBlocked: boolean;
@@ -14,10 +15,12 @@ export interface IUser extends Document {
   streakCount: number;
   bestStreak: number;
   lastActiveDate?: Date;
-  googleId?: string; 
+  googleId?: string;
   isEmailVerified: boolean;
-  tempPassword?: string; 
-  tempPasswordExpiry?: Date;
+  mustChangePassword: boolean;
+  expertise?: string[];
+  experienceLevel?: 'junior' | 'mid' | 'senior';
+  createdByAdminId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -68,8 +71,25 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    tempPassword: String,
-    tempPasswordExpiry: Date,
+    expertise: {
+      type: [String],
+      default: [],
+    },
+
+    experienceLevel: {
+      type: String,
+      enum: ['junior', 'mid', 'senior'],
+    },
+
+    createdByAdminId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
+
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

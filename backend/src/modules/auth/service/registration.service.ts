@@ -1,5 +1,5 @@
 import { RegistrationCacheData, StartRegistrationInput, VerifyRegistrationInput } from "../types/registration.types";
-import { EmailService } from "./email.service";
+import { EmailService } from "../../../shared/email/email.service";
 import { authRepository } from "../auth.repository";
 import { otpService } from "./otp.service";
 import { passwordService } from "../../../shared/utils/password.util";

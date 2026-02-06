@@ -6,7 +6,7 @@ import { passwordService } from '../../../shared/utils/password.util';
 import { AppError } from '../../../shared/utils/AppError';
 import { STATUS_CODES } from '../../../shared/constants/status';
 import { AUTH_MESSAGES } from '../../../shared/constants/messages';
-import { EmailService } from './email.service';
+import { EmailService } from '../../../shared/email/email.service';
 
 const RESET_TOKEN_TTL = 15 * 60; // 15 minutes
 

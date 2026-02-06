@@ -1,7 +1,7 @@
 import nodemailer, { Transporter } from 'nodemailer';
-import { AppError } from '../../../shared/utils/AppError';
-import { STATUS_CODES } from '../../../shared/constants/status';
-import { AUTH_MESSAGES } from '../../../shared/constants/messages';
+import { AppError } from '../utils/AppError';
+import { STATUS_CODES } from '../constants/status';
+import { AUTH_MESSAGES } from '../constants/messages';
 
 export class EmailService {
 
@@ -69,6 +69,61 @@ export class EmailService {
                     AUTH_MESSAGES.EMAIL_SEND_FAILED,
                     STATUS_CODES.INTERNAL_SERVER_ERROR
                )
+          }
+     }
+
+     async sendMentorWelcomeEmail(input: {
+          email: string;
+          tempPassword: string;
+     }): Promise<void> {
+          const { email, tempPassword } = input;
+
+          try {
+               await this._transporter.sendMail({
+                    from: process.env.SMTP_FROM,
+                    to: email,
+                    subject: 'Welcome to ZenCode – Mentor Account Created',
+                    html: `
+                         <div style="font-family: 'JetBrains Mono', Consolas, monospace; padding: 20px;">
+                         <h2>Welcome to ZenCode 🧑🏼‍💻</h2>
+                    <p>An admin has created a mentor account for you.</p>
+
+                    <p><strong>Login Credentials:</strong></p>
+                    <p>Email: ${email}</p>
+                    <p>Password:</p>
+
+                      <div style="
+                         background: #111827;
+                            color: #ffffff;
+                              padding: 12px;
+                               border-radius: 6px;
+                              font-size: 16px;
+                              width: fit-content;
+                                                   ">
+                     ${tempPassword}
+                     </div>
+
+                     <p style="margin-top: 16px;">
+                         ⛔ This password is temporary and will expire in <strong>24 hours</strong>.
+                         </p>
+
+                    <p>
+                     You will be forced to change your password after logging in.
+                     </p>
+
+                    <hr style="margin: 24px 0;" />
+
+                    <p style="font-size: 12px; color: #6b7280;">
+                      If you did not expect this email, please ignore it.
+                         </p>
+                         </div>
+                               `,
+               });
+          } catch (error) {
+               throw new AppError(
+                    AUTH_MESSAGES.EMAIL_SEND_FAILED,
+                    STATUS_CODES.INTERNAL_SERVER_ERROR
+               );
           }
      }
 

@@ -1,6 +1,6 @@
 import { otpService } from "./otp.service";
 import { otpRepository } from "../repositories/otp.respository";
-import { EmailService } from "./email.service";
+import { EmailService } from "../../../shared/email/email.service";
 import { OTP_LIMITS } from "../../../shared/constants/otp.constants";
 import { AppError } from "../../../shared/utils/AppError";
 import { STATUS_CODES } from "../../../shared/constants/status";
