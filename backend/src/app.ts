@@ -6,13 +6,12 @@ import { errorHandler } from './shared/middlewares/error.middleware';
 import cookieParser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes';
 import passport from './config/passport';
+import adminRouter from './modules/admin/admin.routes';
 
 
 app.use(cors({
      origin: [
           process.env.FRONTEND_URL || 'http://localhost:5173',
-          'http://localhost:5173',
-          'http://localhost:5174'
      ],
      credentials: true
 }));
@@ -27,6 +26,7 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 app.use(errorHandler)
 

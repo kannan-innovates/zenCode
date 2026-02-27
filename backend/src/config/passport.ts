@@ -14,7 +14,7 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
       
-      return done(null, profile);
+      return done(null, profile as any);
     }
   )
 );

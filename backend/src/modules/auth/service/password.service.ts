@@ -7,8 +7,7 @@ import { AppError } from '../../../shared/utils/AppError';
 import { STATUS_CODES } from '../../../shared/constants/status';
 import { AUTH_MESSAGES } from '../../../shared/constants/messages';
 import { EmailService } from '../../../shared/email/email.service';
-
-const RESET_TOKEN_TTL = 15 * 60; // 15 minutes
+import { EXPIRY_TIMES } from '../../../shared/constants/expiry.constants';
 
 export class PasswordService {
 
@@ -26,7 +25,7 @@ export class PasswordService {
                .update(rawToken)
                .digest('hex');
 
-          await CacheService.set(REDIS_KEYS.RESET_PASSWORD(hashedToken), user.id, RESET_TOKEN_TTL);
+          await CacheService.set(REDIS_KEYS.RESET_PASSWORD(hashedToken), user.id, EXPIRY_TIMES.PASSWORD_RESET.SECONDS);
 
           const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${rawToken}`;
 

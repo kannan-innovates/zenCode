@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../../shared/types/authenticated-request";
 import { RegistrationService } from "./service/registration.service";
 import { sendSuccess } from "../../shared/utils/response.util";
 import { STATUS_CODES } from "../../shared/constants/status";
@@ -175,13 +176,6 @@ export class AuthController {
      ): Promise<void> {
           try {
                const profile = req.user as any;
-
-               if (!profile) {
-                    throw new AppError(
-                         'Google authentication failed',
-                         STATUS_CODES.UNAUTHORIZED
-                    );
-               }
 
                const { accessToken, refreshToken } =
                     await googleAuthService.authenticateGoogleUser(profile);

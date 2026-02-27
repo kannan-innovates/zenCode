@@ -1,8 +1,6 @@
 import { CacheService } from "../../../shared/cache/cache.service";
 import { REDIS_KEYS } from "../../../shared/constants/redis.keys";
-
-const OTP_EXPIRY_SECONDS =
-     Number(process.env.OTP_EXPIRY_MINUTES || 5) * 60;
+import { EXPIRY_TIMES } from "../../../shared/constants/expiry.constants";
 
 const OTP_LENGTH =
      Number(process.env.OTP_LENGTH || 6);
@@ -18,7 +16,7 @@ export class OTPService {
 
      async storeOTP(email: string, otp: string): Promise<void> {
           const key = REDIS_KEYS.OTP(email);
-          await CacheService.set(key, otp, OTP_EXPIRY_SECONDS);
+          await CacheService.set(key, otp, EXPIRY_TIMES.OTP.SECONDS);
      }
 
      async verifyOTP(email: string, otp: string): Promise<boolean> {
@@ -34,7 +32,7 @@ export class OTPService {
 
      async storeRegistrationData<T>(email: string, data: T): Promise<void> {
           const key = REDIS_KEYS.REGISTRATION(email);
-          await CacheService.set(key, data, OTP_EXPIRY_SECONDS);
+          await CacheService.set(key, data, EXPIRY_TIMES.OTP.SECONDS);
      }
 
      async getRegistrationData<T>(email: string): Promise<T | null> {

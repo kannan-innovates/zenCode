@@ -24,6 +24,7 @@ export const authMiddleware = async (
 
           const payload = verifyAccessToken(token);
 
+
           const user = await authRepository.findById(payload.sub);
 
           if (!user || user.isBlocked) {
@@ -33,7 +34,7 @@ export const authMiddleware = async (
                );
           }
 
-          (req as any).user = {
+          req.user = {
                id: user.id,
                role: user.role,
           };
