@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes';
 import passport from './config/passport';
 import adminRouter from './modules/admin/admin.routes';
+import mentorAuthRouter from './modules/mentor/auth/mentor-auth.routes';
 
 
 app.use(cors({
@@ -27,6 +28,7 @@ connectDB();
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/mentor/auth', mentorAuthRouter);
 
 app.use(errorHandler)
 
