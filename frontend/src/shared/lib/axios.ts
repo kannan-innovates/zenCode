@@ -25,10 +25,10 @@ api.interceptors.request.use((config) => {
 let isRefreshing = false;
 let failedQueue: Array<{
      resolve: (token: string) => void;
-     reject: (error: any) => void;
+     reject: (error: unknown) => void;
 }> = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
      failedQueue.forEach((promise) => {
           if (error) {
                promise.reject(error);
@@ -55,7 +55,18 @@ api.interceptors.response.use(
                originalRequest.url?.includes('/auth/login') ||
                originalRequest.url?.includes('/auth/register') ||
                originalRequest.url?.includes('/auth/verify-otp') ||
-               originalRequest.url?.includes('/auth/resend-otp');
+                originalRequest.url?.includes('/auth/resend-otp') ||
+                originalRequest.url?.includes('/auth/refresh') ||
+                originalRequest.url?.includes('/auth/logout');
+
+          const requestUrl: string = originalRequest.url || '';
+          const isAdminRequest = requestUrl.startsWith('/admin/');
+          const isMentorRequest = requestUrl.startsWith('/mentor/');
+          const refreshUrl = isAdminRequest
+               ? '/admin/auth/refresh'
+               : isMentorRequest
+                    ? '/mentor/auth/refresh'
+                    : '/auth/refresh';
 
           // Handle 401 (Unauthorized) - Token expired
           if (error.response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
@@ -76,7 +87,7 @@ api.interceptors.response.use(
 
                try {
                     const response = await api.post(
-                         '/auth/refresh',
+                         refreshUrl,
                          {},
                          { withCredentials: true }
                     );
@@ -97,7 +108,11 @@ api.interceptors.response.use(
                     tokenService.clear();
 
                     showError('Session expired. Please login again.');
-                    window.location.href = '/login';
+                    window.location.href = isAdminRequest
+                         ? '/admin/login'
+                         : isMentorRequest
+                              ? '/mentor/login'
+                              : '/login';
 
                     return Promise.reject(refreshError);
                } finally {

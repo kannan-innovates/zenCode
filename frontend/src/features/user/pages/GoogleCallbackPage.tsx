@@ -18,10 +18,10 @@ const GoogleCallbackPage = () => {
     if (token) {
       tokenService.setAccessToken(token);
       showSuccess('Login successful');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } else {
       showError('Google authentication failed');
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   }, [searchParams, navigate]);
 

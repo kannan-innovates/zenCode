@@ -22,7 +22,15 @@ export const authMiddleware = async (
 
           const token = authHeader.split(' ')[1];
 
-          const payload = verifyAccessToken(token);
+          let payload;
+          try {
+               payload = verifyAccessToken(token);
+          } catch {
+               throw new AppError(
+                    AUTH_MESSAGES.UNAUTHORIZED,
+                    STATUS_CODES.UNAUTHORIZED
+               );
+          }
 
 
           const user = await authRepository.findById(payload.sub);

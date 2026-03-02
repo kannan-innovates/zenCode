@@ -31,7 +31,9 @@ export const validateQuery = (schema: Joi.ObjectSchema) => {
                return next(new AppError(message, STATUS_CODES.BAD_REQUEST));
           }
 
-          (req as any).query = value;
+          // Express exposes req.query via a getter; assign to a separate field
+          // so controllers/services can rely on sanitized defaults safely.
+          (req as any).validatedQuery = value;
 
           next();
      };

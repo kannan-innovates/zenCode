@@ -65,7 +65,8 @@ export class AdminMentorController {
           next: NextFunction,
      ): Promise<void> {
           try {
-               const result = await this._adminMentorService.listMentors(req.query);
+               const query = (req as any).validatedQuery ?? req.query;
+               const result = await this._adminMentorService.listMentors(query);
 
                sendSuccess(res, {
                     statusCode: STATUS_CODES.OK,

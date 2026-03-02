@@ -36,6 +36,9 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       await authService.register(data);
+      // Clear any stale OTP timer state from a previous registration attempt
+      sessionStorage.removeItem('otpExpiryAt');
+      sessionStorage.removeItem('otpResendCooldown');
       sessionStorage.setItem('registrationEmail', data.email);
       showSuccess('OTP sent to your email');
       navigate('/verify-otp');

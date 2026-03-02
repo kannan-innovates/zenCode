@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,6 +20,13 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
+  
+  useEffect(() => {
+    if (tokenService.getAccessToken()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
   const {
     register,
     handleSubmit,
@@ -38,7 +45,7 @@ const LoginPage = () => {
 
 
       showSuccess('Login successful');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
       // Handle 4xx errors (validation, invalid credentials)
       if (error.response?.status >= 400 && error.response?.status < 500) {

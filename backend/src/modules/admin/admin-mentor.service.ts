@@ -76,7 +76,7 @@ export class AdminMentorService {
      }
 
 
-    async updateMentorStatus(input: {
+     async updateMentorStatus(input: {
           mentorId: string;
           status: 'ACTIVE' | 'DISABLED';
           adminId: string;
@@ -127,7 +127,7 @@ export class AdminMentorService {
           const page = Math.max(1, Number(query.page) || 1);
           const limit = Math.min(50, Number(query.limit) || 10);
 
-          return adminRepository.findMentorsWithFilters({
+          return await adminRepository.findMentorsWithFilters({
                page,
                limit,
                status: query.status,

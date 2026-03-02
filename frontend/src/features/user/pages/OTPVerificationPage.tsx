@@ -4,7 +4,8 @@ import { authService } from '../services/auth.service';
 import { showSuccess, showError } from '../../../shared/utils/toast.util';
 import Navbar from '../../../shared/components/Navbar';
 
-const RESEND_COOLDOWN = 60; // 60 seconds
+const RESEND_COOLDOWN = 60;   // seconds
+const OTP_EXPIRY = 5 * 60;    // 5 minutes in seconds
 
 const OTPVerificationPage = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const OTPVerificationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [expiryCountdown, setExpiryCountdown] = useState(OTP_EXPIRY);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ const OTPVerificationPage = () => {
     }
     setEmail(storedEmail);
 
-    // Check if there's a stored cooldown
+    // Resend cooldown
     const storedCooldown = sessionStorage.getItem('otpResendCooldown');
     if (storedCooldown) {
       const remainingTime = Math.max(0, parseInt(storedCooldown) - Date.now());
@@ -31,19 +33,45 @@ const OTPVerificationPage = () => {
         setCountdown(Math.ceil(remainingTime / 1000));
       }
     }
+
+    // OTP expiry timer
+    const storedExpiry = sessionStorage.getItem('otpExpiryAt');
+    if (storedExpiry) {
+      const remaining = Math.max(0, Math.ceil((parseInt(storedExpiry) - Date.now()) / 1000));
+      setExpiryCountdown(remaining);
+    } else {
+      // First load — set expiry
+      const expiryAt = Date.now() + OTP_EXPIRY * 1000;
+      sessionStorage.setItem('otpExpiryAt', expiryAt.toString());
+      setExpiryCountdown(OTP_EXPIRY);
+    }
   }, [navigate]);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
 
-  // Countdown timer
+  // Resend cooldown timer
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  // OTP expiry timer
+  useEffect(() => {
+    if (expiryCountdown > 0) {
+      const timer = setTimeout(() => setExpiryCountdown((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [expiryCountdown]);
+
+  const formatExpiry = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/[^0-9]/g, '');
@@ -122,7 +150,8 @@ const OTPVerificationPage = () => {
     showSuccess('Registration successful! Please login.');
     sessionStorage.removeItem('registrationEmail');
     sessionStorage.removeItem('otpResendCooldown');
-    navigate('/login');
+    sessionStorage.removeItem('otpExpiryAt');
+    navigate('/login', { replace: true });
   } catch (error: any) {
     if (error.response?.status >= 400 && error.response?.status < 500) {
       const message = error.response?.data?.message || 'Verification failed';
@@ -141,9 +170,14 @@ const handleResendOTP = async () => {
     await authService.resendOTP(email);
     showSuccess('OTP resent successfully');
     
-    const cooldownEnd = Date.now() + (RESEND_COOLDOWN * 1000);
+    const cooldownEnd = Date.now() + RESEND_COOLDOWN * 1000;
     sessionStorage.setItem('otpResendCooldown', cooldownEnd.toString());
     setCountdown(RESEND_COOLDOWN);
+
+    // Reset OTP expiry timer
+    const expiryAt = Date.now() + OTP_EXPIRY * 1000;
+    sessionStorage.setItem('otpExpiryAt', expiryAt.toString());
+    setExpiryCountdown(OTP_EXPIRY);
     
     setOtp(['', '', '', '', '', '']);
     inputRefs.current[0]?.focus();
@@ -179,6 +213,26 @@ const handleResendOTP = async () => {
             </div>
 
             <div className="bg-[var(--color-card-dark)] border border-[var(--color-border-dark)] rounded-xl p-6 md:p-8 shadow-2xl">
+              {/* OTP Expiry Timer */}
+              <div
+                className={`flex items-center justify-center gap-1.5 text-sm font-medium -mt-4 mb-2 ${
+                  expiryCountdown === 0
+                    ? 'text-red-400'
+                    : expiryCountdown <= 60
+                    ? 'text-orange-400'
+                    : 'text-blue-400'
+                }`}
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {expiryCountdown === 0 ? (
+                  <span>OTP expired — please resend</span>
+                ) : (
+                  <span>Code expires in <span className="font-bold tabular-nums">{formatExpiry(expiryCountdown)}</span></span>
+                )}
+              </div>
+
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className="flex justify-between gap-2 md:gap-4">
                   {otp.map((digit, index) => (
