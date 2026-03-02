@@ -17,7 +17,6 @@ export interface IUser extends Document {
   lastActiveDate?: Date;
   googleId?: string;
   isEmailVerified: boolean;
-  mustChangePassword: boolean;
   expertise?: string[];
   experienceLevel?: 'junior' | 'mid' | 'senior';
   createdByAdminId?: mongoose.Types.ObjectId;
@@ -84,11 +83,6 @@ const userSchema = new Schema<IUser>(
     createdByAdminId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
-
-    mustChangePassword: {
-      type: Boolean,
-      default: false,
     },
   },
   {

@@ -1,6 +1,6 @@
 import User, { IUser } from "../user/user.model";
 import { UserRole } from "../../shared/constants/roles";
-import { CreateMentorInput } from "./types/create-mentor.types";
+import { CreateMentorInput } from "./mentor/types/create-mentor.types";
 
 
 class AdminRepository {
@@ -22,7 +22,6 @@ class AdminRepository {
                expertise: data.expertise,
                experienceLevel: data.experienceLevel,
                isEmailVerified: false,
-               mustChangePassword: true,
                createdByAdminId,
           })
      }
@@ -36,7 +35,6 @@ class AdminRepository {
                {
                     password: input.hashedPassword,
                     isEmailVerified: true,
-                    mustChangePassword: false,
                },
                { new: true }
           );

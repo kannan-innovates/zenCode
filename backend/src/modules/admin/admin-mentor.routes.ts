@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { AdminMentorController } from './admin.mentor.controller';
-import { AdminMentorService } from './admin.mentor.service';
+import { AdminMentorController } from './admin-mentor.controller';
+import { AdminMentorService } from './admin-mentor.service';
 import { authMiddleware } from '../../shared/middlewares/auth.middleware';
 import { roleGuard } from '../../shared/middlewares/role-guard.middleware';
 import { UserRole } from '../../shared/constants/roles';
@@ -9,7 +9,7 @@ import adminAuthRouter from './auth/admin-auth.routes';
 import {
   createMentorSchema,
   activateMentorSchema,
-} from './validators/mentor.validator';
+} from './mentor/validators/mentor.validator';
 
 const router = Router();
 
@@ -28,7 +28,7 @@ router.post(
 
 
 router.post(
-  '/mentors/activate',
+  '/mentors/invite',
   validateRequest(activateMentorSchema),
   adminMentorController.activateMentor.bind(adminMentorController)
 );

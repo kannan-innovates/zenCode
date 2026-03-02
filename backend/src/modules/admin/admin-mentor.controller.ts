@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendSuccess } from '../../shared/utils/response.util';
 import { STATUS_CODES } from '../../shared/constants/status';
-import { AdminMentorService } from './admin.mentor.service';
+import { AdminMentorService } from './admin-mentor.service';
 import { AuthenticatedRequest } from '../../shared/types/authenticated-request';
 
 

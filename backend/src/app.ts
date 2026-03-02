@@ -6,7 +6,7 @@ import { errorHandler } from './shared/middlewares/error.middleware';
 import cookieParser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes';
 import passport from './config/passport';
-import adminRouter from './modules/admin/admin.routes';
+import adminRouter from './modules/admin/admin-mentor.routes';
 import mentorAuthRouter from './modules/mentor/auth/mentor-auth.routes';
 
 
