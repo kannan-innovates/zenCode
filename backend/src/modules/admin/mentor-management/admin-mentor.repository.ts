@@ -1,6 +1,6 @@
-import User, { IUser } from "../user/user.model";
-import { UserRole } from "../../shared/constants/roles";
-import { CreateMentorInput } from "./mentor-management/types/create-mentor.types";
+import User, { IUser } from "../../user/user.model";
+import { UserRole } from "../../../shared/constants/roles";
+import { CreateMentorInput } from "./types/create-mentor.types";
 
 
 class AdminRepository {
@@ -110,7 +110,7 @@ class AdminRepository {
           };
      }
 
-    async updateMentorStatus(input: {
+     async updateMentorStatus(input: {
           userId: string;
           status: 'ACTIVE' | 'DISABLED';
           adminId: string;

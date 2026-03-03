@@ -1,12 +1,12 @@
 import crypto from 'crypto';
-import { EmailService } from '../../shared/email/email.service';
-import { CreateMentorInput } from './mentor-management/types/create-mentor.types';
+import { EmailService } from '../../../shared/email/email.service';
+import { CreateMentorInput } from './types/create-mentor.types';
 import { adminRepository } from './admin-mentor.repository';
-import { AppError } from '../../shared/utils/AppError';
-import { STATUS_CODES } from '../../shared/constants/status';
-import { CacheService } from '../../shared/cache/cache.service';
-import { REDIS_KEYS } from '../../shared/constants/redis.keys';
-import { EXPIRY_TIMES } from '../../shared/constants/expiry.constants';
+import { AppError } from '../../../shared/utils/AppError';
+import { STATUS_CODES } from '../../../shared/constants/status';
+import { CacheService } from '../../../shared/cache/cache.service';
+import { REDIS_KEYS } from '../../../shared/constants/redis.keys';
+import { EXPIRY_TIMES } from '../../../shared/constants/expiry.constants';
 
 
 

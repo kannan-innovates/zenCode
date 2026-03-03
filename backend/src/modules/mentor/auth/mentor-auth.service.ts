@@ -11,7 +11,7 @@ import { parseExpiryToSeconds } from '../../../shared/utils/expiry.util';
 import { REFRESH_TOKEN_EXPIRY } from '../../../shared/constants/token.constants';
 import { verifyRefreshToken } from '../../auth/tokens/refresh-token';
 import { ActivateMentorInput } from '../../admin/mentor-management/types/activate-mentor.input.type';
-import { adminRepository } from '../../admin/admin-mentor.repository';
+import { adminRepository } from '../../admin/mentor-management/admin-mentor.repository';
 
 export class MentorAuthService {
 

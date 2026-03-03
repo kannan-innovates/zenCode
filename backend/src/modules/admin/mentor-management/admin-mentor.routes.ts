@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { AdminMentorController } from './admin-mentor.controller';
 import { AdminMentorService } from './admin-mentor.service';
-import { authMiddleware } from '../../shared/middlewares/auth.middleware';
-import { roleGuard } from '../../shared/middlewares/role-guard.middleware';
-import { UserRole } from '../../shared/constants/roles';
-import adminAuthRouter from './auth/admin-auth.routes';
-import { validateRequest, validateQuery } from '../../shared/middlewares/validate.middleware';
-import { createMentorSchema, listMentorsQuerySchema } from './mentor-management/validators/mentor.validator';
+import { authMiddleware } from '../../../shared/middlewares/auth.middleware';
+import { roleGuard } from '../../../shared/middlewares/role-guard.middleware';
+import { UserRole } from '../../../shared/constants/roles';
+import adminAuthRouter from '../auth/admin-auth.routes';
+import { validateRequest, validateQuery } from '../../../shared/middlewares/validate.middleware';
+import { createMentorSchema, listMentorsQuerySchema } from './validators/mentor.validator';
 
 const router = Router();
 
