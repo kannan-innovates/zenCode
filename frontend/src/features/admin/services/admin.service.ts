@@ -15,6 +15,15 @@ interface LoginResponse {
      };
 }
 
+interface UserListQuery {
+     page?: number;
+     limit?: number;
+     search?: string;
+     isBlocked?: boolean;
+     sortBy?: 'createdAt' | 'lastActiveDate' | 'email';
+     sortOrder?: 'asc' | 'desc';
+}
+
 interface MentorListQuery {
      page?: number;
      limit?: number;
@@ -49,6 +58,22 @@ export const adminService = {
 
      resendInvite: async (mentorId: string) => {
           const response = await api.post(`/admin/mentors/${mentorId}/resend-invite`);
+          return response.data;
+     },
+
+
+     listUsers: async (query: UserListQuery = {}) => {
+          const response = await api.get('/admin/users', { params: query });
+          return response.data;
+     },
+
+     blockUser: async (userId: string) => {
+          const response = await api.patch(`/admin/users/${userId}/block`);
+          return response.data;
+     },
+
+     unblockUser: async (userId: string) => {
+          const response = await api.patch(`/admin/users/${userId}/unblock`);
           return response.data;
      },
 };

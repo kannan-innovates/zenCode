@@ -30,13 +30,23 @@ class AdminUserRepository {
 
           const skip = (page - 1) * limit;
 
+          const sortFieldWhitelist = new Set([
+               'createdAt',
+               'lastActiveDate',
+               'email',
+          ]);
+
+          const finalSortBy = sortFieldWhitelist.has(sortBy)
+               ? sortBy
+               : 'createdAt';
+
           const [users, total] = await Promise.all([
                User.find(filter)
                     .select('-password -googleId')
-                    .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+                    .sort({ [finalSortBy]: sortOrder === 'asc' ? 1 : -1 })
                     .skip(skip)
                     .limit(limit)
-                    .lean(),
+                    .exec(),
                User.countDocuments(filter),
           ]);
 
@@ -47,7 +57,7 @@ class AdminUserRepository {
      }
 
      async findById(userId: string): Promise<IUser | null> {
-          return User.findById(userId);
+          return User.findById(userId).exec();
      }
 
      async blockUser(userId: string, adminId: string) {

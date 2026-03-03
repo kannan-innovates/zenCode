@@ -8,6 +8,7 @@ import ForgotPasswordPage from '../features/user/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/user/pages/ResetPasswordPage';
 import AdminLoginPage from '../features/admin/pages/AdminLoginPage';
 import MentorManagementPage from '../features/admin/pages/MentorManagementPage';
+import UserManagementPage from '../features/admin/pages/UserManagementPage'; // NEW
 import MentorLoginPage from '../features/mentor/pages/MentorLoginPage';
 import MentorActivationPage from '../features/mentor/pages/MentorActivationPage';
 import MentorSuccessPage from '../features/mentor/pages/MentorSuccessPage';
@@ -53,10 +54,19 @@ const AppRoutes = () => {
       {/* Admin Routes */}
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route
-        path="/admin/dashboard"
+        path="/admin/mentors"
         element={
           <ProtectedRoute redirectTo="/admin/login">
             <MentorManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/dashboard" element={<Navigate to="/admin/mentors" replace />} />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute redirectTo="/admin/login">
+            <UserManagementPage />
           </ProtectedRoute>
         }
       />

@@ -20,6 +20,7 @@ export class AdminUserController {
                          total: result.total,
                          page: query.page,
                          limit: query.limit,
+                         totalPages: Math.ceil(result.total / query.limit),
                     },
                });
           } catch (err) {
