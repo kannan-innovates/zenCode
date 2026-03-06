@@ -9,6 +9,8 @@ import passport from './config/passport';
 import adminRouter from './modules/admin/mentor-management/admin-mentor.routes';
 import mentorAuthRouter from './modules/mentor/auth/mentor-auth.routes';
 import adminUserRouter from './modules/admin/user-management/admin-user.routes';
+import problemRoutes from './modules/problem/problem.routes';
+
 
 app.use(cors({
      origin: [
@@ -30,6 +32,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/mentor/auth', mentorAuthRouter);
 app.use('/api/admin', adminUserRouter);
+app.use('/api/problems', problemRoutes);
 
 app.use(errorHandler)
 

@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { tokenService } from '../../../shared/lib/token';
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isProblemsOpen, setIsProblemsOpen] = useState(
+    location.pathname.startsWith('/admin/problems')
+  );
 
   const handleLogout = () => {
     tokenService.clear();
@@ -18,22 +22,13 @@ const AdminSidebar = () => {
         <span className="text-xl font-bold text-[var(--color-primary)]">ZenCode</span>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         <button
-          onClick={() => navigate('/admin/dashboard')}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-            isActive('/admin/dashboard')
-              ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
-              : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
-          }`}
+          onClick={() => navigate('/admin/mentors')}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           <span>Dashboard</span>
         </button>
@@ -66,12 +61,63 @@ const AdminSidebar = () => {
           <span>Mentors</span>
         </button>
 
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-          <span>Problems</span>
-        </button>
+        {/* Problems with Submenu */}
+        <div>
+          <button
+            onClick={() => setIsProblemsOpen(!isProblemsOpen)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+              location.pathname.startsWith('/admin/problems')
+                ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span>Problems</span>
+            </div>
+            <svg
+              className={`w-4 h-4 transition-transform ${isProblemsOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {isProblemsOpen && (
+            <div className="ml-4 mt-1 space-y-1">
+              <button
+                onClick={() => navigate('/admin/problems')}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                  isActive('/admin/problems')
+                    ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                    : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                <span>All Problems</span>
+              </button>
+              <button
+                onClick={() => navigate('/admin/problems/create')}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-colors ${
+                  isActive('/admin/problems/create')
+                    ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                    : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Problem</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:bg-[#1a1a1a] hover:text-white transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

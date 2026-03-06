@@ -24,6 +24,78 @@ interface UserListQuery {
      sortOrder?: 'asc' | 'desc';
 }
 
+interface ProblemListQuery {
+     page?: number;
+     limit?: number;
+     search?: string;
+     difficulty?: 'easy' | 'medium' | 'hard';
+     tag?: string;
+     isPremium?: boolean;
+     isActive?: boolean;
+     sortBy?: 'createdAt' | 'difficulty' | 'title';
+     sortOrder?: 'asc' | 'desc';
+}
+
+interface ExampleInput {
+     input: string;
+     output: string;
+     explanation?: string;
+}
+
+interface TestCaseInput {
+     input: string;
+     output: string;
+     isHidden?: boolean;
+}
+
+interface ParameterInput {
+     name: string;
+     type: string;
+}
+
+interface FunctionSignatureInput {
+     functionName: string;
+     parameters: ParameterInput[];
+     returnType: string;
+}
+
+interface StarterCodeInput {
+     javascript?: string;
+     python?: string;
+     java?: string;
+}
+
+export interface CreateProblemInput {
+     title: string;
+     description: string;
+     difficulty: 'easy' | 'medium' | 'hard';
+     tags: string[];
+     companyTags?: string[];
+     constraints?: string;
+     examples?: ExampleInput[];
+     starterCode?: StarterCodeInput;
+     functionSignature: FunctionSignatureInput;
+     testCases: TestCaseInput[];
+     supportedLanguages?: string[];
+     isPremium?: boolean;
+}
+
+interface UpdateProblemInput {
+     title?: string;
+     description?: string;
+     difficulty?: 'easy' | 'medium' | 'hard';
+     tags?: string[];
+     companyTags?: string[];
+     constraints?: string;
+     examples?: ExampleInput[];
+     starterCode?: StarterCodeInput;
+     functionSignature?: FunctionSignatureInput;
+     testCases?: TestCaseInput[];
+     supportedLanguages?: string[];
+     isPremium?: boolean;
+     isActive?: boolean;
+}
+
 interface MentorListQuery {
      page?: number;
      limit?: number;
@@ -34,6 +106,7 @@ interface MentorListQuery {
      sortBy?: string;
      sortOrder?: 'asc' | 'desc';
 }
+
 
 export const adminService = {
      login: async (data: { email: string; password: string }): Promise<LoginResponse['data']> => {
@@ -74,6 +147,37 @@ export const adminService = {
 
      unblockUser: async (userId: string) => {
           const response = await api.patch(`/admin/users/${userId}/unblock`);
+          return response.data;
+     },
+
+
+     listProblems: async (query: ProblemListQuery = {}) => {
+          const response = await api.get('/problems/admin', { params: query });
+          return response.data.data;
+     },
+
+     getProblemTags: async (): Promise<string[]> => {
+          const response = await api.get<{ data: string[] }>('/problems/tags');
+          return response.data.data ?? [];
+     },
+
+     getProblem: async (problemId: string) => {
+          const response = await api.get(`/problems/${problemId}`);
+          return response.data;
+     },
+
+     createProblem: async (data: CreateProblemInput) => {
+          const response = await api.post('/problems', data);
+          return response.data;
+     },
+
+     updateProblem: async (problemId: string, data: UpdateProblemInput) => {
+          const response = await api.patch(`/problems/${problemId}`, data);
+          return response.data;
+     },
+
+     deleteProblem: async (problemId: string) => {
+          const response = await api.delete(`/problems/${problemId}`);
           return response.data;
      },
 };

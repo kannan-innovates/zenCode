@@ -8,10 +8,12 @@ import ForgotPasswordPage from '../features/user/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/user/pages/ResetPasswordPage';
 import AdminLoginPage from '../features/admin/pages/AdminLoginPage';
 import MentorManagementPage from '../features/admin/pages/MentorManagementPage';
-import UserManagementPage from '../features/admin/pages/UserManagementPage'; // NEW
+import UserManagementPage from '../features/admin/pages/UserManagementPage'; 
 import MentorLoginPage from '../features/mentor/pages/MentorLoginPage';
 import MentorActivationPage from '../features/mentor/pages/MentorActivationPage';
 import MentorSuccessPage from '../features/mentor/pages/MentorSuccessPage';
+import ProblemListPage from '../features/admin/pages/ProblemListPage';
+import ProblemFormPage from '../features/admin/pages/ProblemForm';
 import ProtectedRoute from '../shared/components/ProtectedRoute';
 import { tokenService } from '../shared/lib/token';
 
@@ -67,6 +69,30 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute redirectTo="/admin/login">
             <UserManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/problems"
+        element={
+          <ProtectedRoute redirectTo="/admin/login">
+            <ProblemListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/problems/create"
+        element={
+          <ProtectedRoute redirectTo="/admin/login">
+            <ProblemFormPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/problems/edit/:id"
+        element={
+          <ProtectedRoute redirectTo="/admin/login">
+            <ProblemFormPage />
           </ProtectedRoute>
         }
       />
