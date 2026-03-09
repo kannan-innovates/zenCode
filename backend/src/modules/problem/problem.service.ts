@@ -12,7 +12,7 @@ export class ProblemService {
           this.problemRepository = new ProblemRepository();
      }
 
-     //CREATE PROBLEM
+     //CREATE PROBLEM ADMIN
      async createProblem(adminId: string, data: CreateProblemInput) {
 
           const existingProblem = await this.problemRepository.findByTitle(data.title);
@@ -29,7 +29,7 @@ export class ProblemService {
           return problem;
      }
 
-     //LIST PROBLEM
+     //LIST PROBLEM ADMIN
      async listProblems(query: ListProblemsQuery) {
 
           const page = Number(query.page) || 1
@@ -80,7 +80,7 @@ export class ProblemService {
           }
      }
 
-     //GET PROBLEM DETEAILS
+     //GET PROBLEM DETEAILS ADMIN
 
      async getProblemById(problemId: string) {
 
@@ -96,7 +96,7 @@ export class ProblemService {
           return problem
      }
 
-     //UPDATE PROBLEM
+     //UPDATE PROBLEM ADMIN
      async updateProblem(problemId: string, data: UpdateProblemInput) {
 
           const problem = await this.problemRepository.updateById(problemId, data)
@@ -129,5 +129,66 @@ export class ProblemService {
           }
 
           return problem
+     }
+
+     //CANDIDATE
+     async listCandidateProblems(query: ListProblemsQuery) {
+
+          const page = Number(query.page) || 1
+          const limit = Math.min(Number(query.limit) || 20, 50)
+
+          const skip = (page - 1) * limit
+
+          const filters: any = {
+               isActive: true
+          }
+
+          if (query.search) {
+               filters.title = { $regex: query.search, $options: "i" }
+          }
+
+          if (query.difficulty) {
+               filters.difficulty = query.difficulty
+          }
+
+          if (query.tag) {
+               filters.tags = query.tag
+          }
+
+          if (query.isPremium !== undefined) {
+               filters.isPremium = query.isPremium
+          }
+
+          const sort: any = {
+               [query.sortBy || "createdAt"]: query.sortOrder === "asc" ? 1 : -1
+          }
+
+          const { problems, total } =
+               await this.problemRepository.listProblems(filters, skip, limit, sort)
+
+          return {
+               data: problems,
+               meta: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit)
+               }
+          }
+     }
+
+     async getCandidateProblem(problemId: string) {
+
+          const problem = await this.problemRepository.findById(problemId)
+
+          if (!problem || !problem.isActive) {
+               throw new AppError(
+                    "Problem not found",
+                    STATUS_CODES.NOT_FOUND
+               )
+          }
+
+          const { testCases, ...result } = problem.toObject()
+          return result
      }
 }

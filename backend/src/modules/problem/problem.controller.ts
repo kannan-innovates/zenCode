@@ -132,4 +132,47 @@ export class ProblemController {
                next(error)
           }
      }
+
+     listCandidateProblems = async (
+          req: Request,
+          res: Response,
+          next: NextFunction
+     ): Promise<void> => {
+          try {
+
+               const result =
+                    await this.problemService.listCandidateProblems(req.query)
+
+               sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    message: "Problems fetched successfully",
+                    data: result
+               })
+
+          } catch (error) {
+               next(error)
+          }
+     }
+
+
+     getCandidateProblem = async (
+          req: Request,
+          res: Response,
+          next: NextFunction
+     ): Promise<void> => {
+          try {
+
+               const problem =
+                    await this.problemService.getCandidateProblem(req.params.id as string)
+
+               sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    message: "Problem fetched successfully",
+                    data: problem
+               })
+
+          } catch (error) {
+               next(error)
+          }
+     }
 }

@@ -54,4 +54,18 @@ router.delete(
   controller.deleteProblem
 )
 
+router.get(
+  "/",
+  authMiddleware,
+  roleGuard(UserRole.CANDIDATE),
+  controller.listCandidateProblems
+)
+
+router.get(
+  "/:id",
+  authMiddleware,
+  roleGuard(UserRole.CANDIDATE),
+  controller.getCandidateProblem
+)
+
 export default router
