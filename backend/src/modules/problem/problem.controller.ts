@@ -71,6 +71,23 @@ export class ProblemController {
           }
      }
 
+     getProblemCompanyTags = async (
+          req: Request,
+          res: Response,
+          next: NextFunction
+     ): Promise<void> => {
+          try {
+               const companyTags = await this.problemService.getDistinctCompanyTags()
+               return sendSuccess(res, {
+                    statusCode: STATUS_CODES.OK,
+                    message: "Company tags fetched successfully",
+                    data: companyTags,
+               })
+          } catch (error) {
+               next(error)
+          }
+     }
+
      getProblem = async (
           req: Request,
           res: Response,

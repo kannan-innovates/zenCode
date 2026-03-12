@@ -9,6 +9,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ): void => {
+  console.error('[Error Middleware] Caught Error:', err);
   const statusCode =
     err instanceof AppError
       ? err.statusCode

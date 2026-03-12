@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from '../features/user/pages/LandingPage';
+import ProblemListPage from '../features/candidate/pages/ProblemListPage';
 import RegisterPage from '../features/user/pages/RegisterPage';
 import OTPVerificationPage from '../features/user/pages/OTPVerificationPage';
 import LoginPage from '../features/user/pages/LoginPage';
@@ -12,7 +13,7 @@ import UserManagementPage from '../features/admin/pages/UserManagementPage';
 import MentorLoginPage from '../features/mentor/pages/MentorLoginPage';
 import MentorActivationPage from '../features/mentor/pages/MentorActivationPage';
 import MentorSuccessPage from '../features/mentor/pages/MentorSuccessPage';
-import ProblemListPage from '../features/admin/pages/ProblemListPage';
+import AdminProblemListPage from '../features/admin/pages/ProblemListPage';
 import ProblemFormPage from '../features/admin/pages/ProblemForm';
 import ProtectedRoute from '../shared/components/ProtectedRoute';
 import { tokenService } from '../shared/lib/token';
@@ -31,24 +32,19 @@ const AppRoutes = () => {
 
       {/* User Dashboard */}
       <Route
+        path="/problems"
+        element={
+          <ProtectedRoute>
+            <ProblemListPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div className="min-h-screen bg-[var(--color-background-dark)] flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-white text-4xl font-bold mb-4">Dashboard</h1>
-                <p className="text-gray-400 mb-8">You're logged in! 🎉</p>
-                <button
-                  onClick={() => {
-                    tokenService.clear();
-                    window.location.href = '/login';
-                  }}
-                  className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-all"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
+            <Navigate to="/problems" replace />
           </ProtectedRoute>
         }
       />
@@ -76,7 +72,7 @@ const AppRoutes = () => {
         path="/admin/problems"
         element={
           <ProtectedRoute redirectTo="/admin/login">
-            <ProblemListPage />
+            <AdminProblemListPage />
           </ProtectedRoute>
         }
       />

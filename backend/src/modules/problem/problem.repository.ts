@@ -48,4 +48,9 @@ export class ProblemRepository {
           return tags.filter(Boolean).sort()
      }
 
+     async getDistinctCompanyTags(): Promise<string[]> {
+          const result = await ProblemModel.distinct("companyTags", { isActive: true })
+          return result.filter(Boolean).sort()
+     }
+
 }

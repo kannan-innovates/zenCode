@@ -25,11 +25,20 @@ router.get(
   controller.listProblems
 )
 
+// Accessible by both admin and candidates
 router.get(
   "/tags",
   authMiddleware,
-  roleGuard(UserRole.ADMIN),
+  roleGuard(UserRole.ADMIN, UserRole.CANDIDATE),
   controller.getProblemTags
+)
+
+// Accessible by both admin and candidates
+router.get(
+  "/company-tags",
+  authMiddleware,
+  roleGuard(UserRole.ADMIN, UserRole.CANDIDATE),
+  controller.getProblemCompanyTags
 )
 
 router.get(

@@ -116,6 +116,11 @@ export class ProblemService {
           return this.problemRepository.getDistinctTags()
      }
 
+     //GET DISTINCT COMPANY TAGS
+     async getDistinctCompanyTags(): Promise<string[]> {
+          return this.problemRepository.getDistinctCompanyTags()
+     }
+
      //DELETE PROBLEM (SOFT DELETE)
      async deleteProblem(problemId: string) {
 
