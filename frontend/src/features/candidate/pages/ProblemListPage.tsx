@@ -29,7 +29,7 @@ const ProblemListPage = () => {
     tag: '',
   });
   const [availableTags, setAvailableTags] = useState<string[]>([]);
-  const [availableCompanyTags, setAvailableCompanyTags] = useState<string[]>([]);
+  const [availableCompanyTags, setAvailableCompanyTags] = useState<{ name: string; count: number }[]>([]);
   const [companySearch, setCompanySearch] = useState('');
   const [userIsPremium, setUserIsPremium] = useState(false);
 
@@ -127,7 +127,7 @@ const ProblemListPage = () => {
   };
 
   const filteredCompanyTags = availableCompanyTags.filter((c) =>
-    c.toLowerCase().includes(companySearch.toLowerCase())
+    c.name.toLowerCase().includes(companySearch.toLowerCase())
   );
 
   return (
@@ -421,32 +421,32 @@ const ProblemListPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {filteredCompanyTags.slice(0, 20).map((company) => (
+                    {filteredCompanyTags.map((company) => (
                       <button
-                        key={company}
+                        key={company.name}
                         onClick={() =>
                           setFilters({
                             ...filters,
-                            tag: filters.tag === company ? '' : company,
+                            tag: filters.tag === company.name ? '' : company.name,
                           })
                         }
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors group ${
-                          filters.tag === company
+                          filters.tag === company.name
                             ? 'bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/40'
                             : 'bg-[#1a1a1a] hover:bg-[#2a2d3a]'
                         }`}
                       >
                         <span
                           className={`text-sm transition-colors ${
-                            filters.tag === company
+                            filters.tag === company.name
                               ? 'text-[var(--color-primary)]'
                               : 'text-gray-300 group-hover:text-white'
                           }`}
                         >
-                          {company}
+                          {company.name}
                         </span>
                         <span className="flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)] text-xs font-bold">
-                          {Math.floor(Math.random() * 30) + 1}
+                          {company.count}
                         </span>
                       </button>
                     ))}

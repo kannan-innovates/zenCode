@@ -27,7 +27,7 @@ export const candidateProblemService = {
     return response.data.data || [];
   },
 
-  getCompanyTags: async (): Promise<string[]> => {
+  getCompanyTags: async (): Promise<{ name: string; count: number }[]> => {
     const response = await api.get('/problems/company-tags');
     return response.data.data || [];
   },

@@ -48,9 +48,14 @@ export class ProblemRepository {
           return tags.filter(Boolean).sort()
      }
 
-     async getDistinctCompanyTags(): Promise<string[]> {
-          const result = await ProblemModel.distinct("companyTags", { isActive: true })
-          return result.filter(Boolean).sort()
+     async getCompanyTagStats(): Promise<{ name: string; count: number }[]> {
+          return ProblemModel.aggregate([
+               { $match: { isActive: true } },
+               { $unwind: "$companyTags" },
+               { $group: { _id: "$companyTags", count: { $sum: 1 } } },
+               { $project: { name: "$_id", count: 1, _id: 0 } },
+               { $sort: { count: -1, name: 1 } }
+          ]);
      }
 
 }

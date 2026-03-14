@@ -117,8 +117,8 @@ export class ProblemService {
      }
 
      //GET DISTINCT COMPANY TAGS
-     async getDistinctCompanyTags(): Promise<string[]> {
-          return this.problemRepository.getDistinctCompanyTags()
+     async getDistinctCompanyTags(): Promise<{ name: string; count: number }[]> {
+          return this.problemRepository.getCompanyTagStats()
      }
 
      //DELETE PROBLEM (SOFT DELETE)
@@ -157,7 +157,10 @@ export class ProblemService {
           }
 
           if (query.tag) {
-               filters.tags = query.tag
+               filters.$or = [
+                    { tags: query.tag },
+                    { companyTags: query.tag }
+               ];
           }
 
           if (query.isPremium !== undefined) {
