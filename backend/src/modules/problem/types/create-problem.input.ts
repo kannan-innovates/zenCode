@@ -25,6 +25,12 @@ export type StarterCodeInput = {
      javascript?: string
      python?: string
      java?: string
+     cpp?: string
+     c?: string
+     csharp?: string
+     go?: string
+     rust?: string
+     typescript?: string
 }
 
 export type CreateProblemInput = {

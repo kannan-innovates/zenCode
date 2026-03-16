@@ -3,6 +3,7 @@ import { ProblemService } from "./problem.service";
 import { AuthenticatedRequest } from "../../shared/types/authenticated-request";
 import { sendSuccess } from "../../shared/utils/response.util";
 import { STATUS_CODES } from "../../shared/constants/status";
+import { UserRole } from "../../shared/constants/roles";
 
 export class ProblemController {
      private problemService: ProblemService;
@@ -94,14 +95,21 @@ export class ProblemController {
           next: NextFunction
      ): Promise<void> => {
           try {
+               const authReq = req as AuthenticatedRequest;
+               const userRole = authReq.user.role;
 
-               const problem = await this.problemService.getProblemById(req.params.id as string)
+               let problem;
+               if (userRole === UserRole.ADMIN) {
+                    problem = await this.problemService.getProblemById(req.params.id as string);
+               } else {
+                    problem = await this.problemService.getCandidateProblem(req.params.id as string);
+               }
 
                sendSuccess(res, {
                     statusCode: STATUS_CODES.OK,
-                    message: "Problem fetched",
+                    message: "Problem fetched successfully",
                     data: problem
-               })
+               });
 
           } catch (error) {
                next(error)

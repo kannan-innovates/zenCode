@@ -27,7 +27,13 @@ const functionSignatureSchema = z.object({
 const starterCodeSchema = z.object({
      javascript: z.string().optional(),
      python: z.string().optional(),
-     java: z.string().optional()
+     java: z.string().optional(),
+     cpp: z.string().optional(),
+     c: z.string().optional(),
+     csharp: z.string().optional(),
+     go: z.string().optional(),
+     rust: z.string().optional(),
+     typescript: z.string().optional()
 }).optional()
 
 export const updateProblemValidator = z.object({

@@ -1,5 +1,43 @@
 import api from '../../../shared/lib/axios';
 
+export interface Problem {
+  _id: string;
+  title: string;
+  description: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  tags: string[];
+  companyTags?: string[];
+  examples?: Array<{
+    input: string;
+    output: string;
+    explanation?: string;
+  }>;
+  constraints?: string;
+  functionSignature?: {
+    functionName: string;
+    parameters: Array<{ name: string; type: string }>;
+    returnType: string;
+  };
+  starterCode?: {
+    javascript?: string;
+    python?: string;
+    java?: string;
+    cpp?: string;
+    c?: string;
+    csharp?: string;
+    go?: string;
+    rust?: string;
+    typescript?: string;
+  };
+  testCases?: Array<{
+    input: string;
+    output: string;
+    isHidden?: boolean;
+  }>;
+  supportedLanguages?: string[];
+  isPremium: boolean;
+}
+
 interface ProblemListQuery {
   page?: number;
   limit?: number;

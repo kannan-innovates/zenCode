@@ -44,7 +44,7 @@ router.get(
 router.get(
   "/:id",
   authMiddleware,
-  roleGuard(UserRole.ADMIN),
+  roleGuard(UserRole.ADMIN, UserRole.CANDIDATE),
   controller.getProblem
 )
 
@@ -68,13 +68,6 @@ router.get(
   authMiddleware,
   roleGuard(UserRole.CANDIDATE),
   controller.listCandidateProblems
-)
-
-router.get(
-  "/:id",
-  authMiddleware,
-  roleGuard(UserRole.CANDIDATE),
-  controller.getCandidateProblem
 )
 
 export default router

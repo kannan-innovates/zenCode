@@ -1,4 +1,5 @@
 import api from "../../../shared/lib/axios";
+import { type StarterCode } from "../../candidate/services/compiler.service";
 
 interface CreateMentorData {
      fullName: string;
@@ -59,11 +60,7 @@ interface FunctionSignatureInput {
      returnType: string;
 }
 
-interface StarterCodeInput {
-     javascript?: string;
-     python?: string;
-     java?: string;
-}
+interface StarterCodeInput extends StarterCode {}
 
 export interface CreateProblemInput {
      title: string;

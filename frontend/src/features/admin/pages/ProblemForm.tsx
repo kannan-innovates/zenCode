@@ -27,11 +27,41 @@ const exampleSchema = z.object({
   message: "Both input and output are required if an example is provided"
 });
 
+const generateStarterCode = (lang: string, signature: any) => {
+  const { functionName, parameters, returnType } = signature;
+  const params = (parameters || []).map((p: any) => p.name).join(', ');
+  
+  const mapType = (type: string, targetLang: string) => {
+    const t = type.toLowerCase();
+    if (targetLang === 'python') {
+      if (t === 'number') return 'int';
+      if (t === 'string') return 'str';
+      if (t === 'boolean') return 'bool';
+      if (t === 'void') return 'None';
+      if (t === 'array') return 'List[int]';
+      if (t === 'object') return 'Dict[str, Any]';
+      return 'Any';
+    }
+    return t;
+  };
+
+  switch (lang) {
+    case 'python':
+      return `class Solution:\n    def ${functionName}(self, ${(parameters || []).map((p: any) => `${p.name}: ${mapType(p.type, 'python')}`).join(', ')}) -> ${mapType(returnType, 'python')}:\n        pass`;
+    case 'javascript':
+      return `/**\n * @param {any} ${params}\n * @return {${returnType}}\n */\nvar ${functionName} = function(${params}) {\n    \n};`;
+    default:
+      return '';
+  }
+};
+
 const testCaseSchema = z.object({
   input: z.string().min(1, 'Input required'),
   output: z.string().min(1, 'Output required'),
   isHidden: z.boolean().optional(),
 });
+
+const ALLOWED_LANGUAGES = ['python', 'javascript'] as const;
 
 const problemSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(150),
@@ -47,15 +77,9 @@ const problemSchema = z.object({
     parameters: z.array(parameterSchema),
     returnType: z.string().min(1, 'Return type required'),
   }),
-  starterCode: z
-    .object({
-      javascript: z.string().optional(),
-      python: z.string().optional(),
-      java: z.string().optional(),
-    })
-    .optional(),
+  starterCode: z.record(z.string(), z.string().optional()).optional(),
   testCases: z.array(testCaseSchema).min(1, 'At least one test case required'),
-  supportedLanguages: z.array(z.string()).optional(),
+  supportedLanguages: z.array(z.enum(ALLOWED_LANGUAGES)).optional(),
   isPremium: z.boolean().optional(),
 });
 
@@ -83,6 +107,7 @@ const ProblemFormPage = () => {
     formState: { errors },
     control,
     setValue,
+    getValues,
   } = useForm<ProblemFormData>({
     resolver: zodResolver(problemSchema),
     defaultValues: {
@@ -95,11 +120,7 @@ const ProblemFormPage = () => {
         parameters: [],
         returnType: '',
       },
-      starterCode: {
-        javascript: '',
-        python: '',
-        java: '',
-      },
+      starterCode: {},
     },
   });
 
@@ -174,6 +195,15 @@ const ProblemFormPage = () => {
       setValue('testCases', problem.testCases || []);
       setValue('functionSignature', problem.functionSignature);
       setValue('starterCode', problem.starterCode || {});
+      // Normalize supportedLanguages to our allowed set; default to both if empty
+      const normalizedSupported =
+        (problem.supportedLanguages || []).filter((lang: string) =>
+          ALLOWED_LANGUAGES.includes(lang as (typeof ALLOWED_LANGUAGES)[number])
+        );
+      setValue(
+        'supportedLanguages',
+        normalizedSupported.length > 0 ? normalizedSupported : [...ALLOWED_LANGUAGES],
+      );
 
       setSelectedTags(problem.tags || []);
       setSelectedCompanyTags(problem.companyTags || []);
@@ -212,6 +242,8 @@ const ProblemFormPage = () => {
           : undefined,
         tags: selectedTags,
         companyTags: selectedCompanyTags,
+        // Always persist only our two platform languages, even if form state diverges
+        supportedLanguages: ALLOWED_LANGUAGES.slice() as unknown as string[],
       };
 
       if (isEditMode && id) {
@@ -236,6 +268,27 @@ const ProblemFormPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAutoGenerateStarterCode = () => {
+    const signature = getValues('functionSignature');
+    if (!signature.functionName) {
+      showError('Please provide a function name first');
+      return;
+    }
+
+    const currentStarterCode = getValues('starterCode') || {};
+    const languages = ['python', 'javascript'];
+    
+    const newStarterCode = { ...currentStarterCode };
+    languages.forEach(lang => {
+      if (!newStarterCode[lang] || newStarterCode[lang].trim() === '') {
+        newStarterCode[lang] = generateStarterCode(lang, signature);
+      }
+    });
+
+    setValue('starterCode', newStarterCode);
+    showSuccess('Starter code generated for empty languages');
   };
 
   const TAG_MIN_LEN = 2;
@@ -610,6 +663,32 @@ const ProblemFormPage = () => {
             </div>
           </div>
 
+          {/* Supported Languages */}
+          <div className="bg-[#0f0f0f] border border-[#2a2d3a] rounded-xl p-6">
+            <h2 className="text-white text-lg font-bold mb-4">
+              Supported Languages <span className="text-gray-500 text-sm font-normal">(Optional)</span>
+            </h2>
+            <p className="text-gray-500 text-xs mb-4">
+              Platform currently supports two languages: Python and JavaScript. All problems will use this fixed set.
+            </p>
+            <div className="grid grid-cols-3 gap-4">
+              {ALLOWED_LANGUAGES.map((lang) => (
+                <label key={lang} className="flex items-center gap-3 p-3 rounded-lg bg-[#1a1a1a] border border-[#2a2d3a]">
+                  <input
+                    type="checkbox"
+                    value={lang}
+                    checked
+                    readOnly
+                    className="w-5 h-5 rounded bg-[#0f0f0f] border-[#2a2d3a] text-[var(--color-primary)]"
+                  />
+                  <span className="text-white text-sm capitalize">
+                    {lang === 'javascript' ? 'JavaScript' : 'Python'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Function Signature */}
           <div className="bg-[#0f0f0f] border border-[#2a2d3a] rounded-xl p-6">
             <h2 className="text-white text-lg font-bold mb-4">Function Signature</h2>
@@ -712,9 +791,21 @@ const ProblemFormPage = () => {
 
           {/* Starter Code */}
           <div className="bg-[#0f0f0f] border border-[#2a2d3a] rounded-xl p-6">
-            <h2 className="text-white text-lg font-bold mb-4">
-              Starter Code <span className="text-gray-500 text-sm font-normal">(Optional)</span>
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-lg font-bold">
+                Starter Code <span className="text-gray-500 text-sm font-normal">(Optional)</span>
+              </h2>
+              <button
+                type="button"
+                onClick={handleAutoGenerateStarterCode}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2d3a] text-white hover:bg-[#2a2d3a] transition-all text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Auto-generate from Signature
+              </button>
+            </div>
 
             <div className="space-y-4">
               <div>
@@ -741,17 +832,7 @@ const ProblemFormPage = () => {
                 />
               </div>
 
-              <div>
-                <label className="text-white text-sm font-medium uppercase tracking-wide block mb-2">
-                  Java
-                </label>
-                <textarea
-                  {...register('starterCode.java')}
-                  placeholder="// Definition for singly-linked list.&#10;// public class ListNode {&#10;//     int val;&#10;//     ListNode next;&#10;//     ListNode() {}&#10;//     ListNode(int val) { this.val = val; }&#10;//     ListNode(int val, ListNode next) { this.val = val; this.next = next; }&#10;// }"
-                  rows={6}
-                  className="w-full rounded-lg bg-[#1a1a1a] border border-[#2a2d3a] text-white placeholder-gray-600 focus:border-[var(--color-primary)] focus:ring-0 focus:outline-none transition-all p-4 font-mono text-sm"
-                />
-              </div>
+              
             </div>
           </div>
 

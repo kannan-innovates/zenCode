@@ -22,7 +22,13 @@ const StarterCodeSchema = new Schema(
      {
           javascript: { type: String },
           python: { type: String },
-          java: { type: String }
+          java: { type: String },
+          cpp: { type: String },
+          c: { type: String },
+          csharp: { type: String },
+          go: { type: String },
+          rust: { type: String },
+          typescript: { type: String }
      },
      { _id: false }
 );
@@ -96,7 +102,7 @@ const ProblemSchema = new Schema(
 
           supportedLanguages: {
                type: [String],
-               default: ["javascript"]
+               default: []
           },
 
           isPremium: {

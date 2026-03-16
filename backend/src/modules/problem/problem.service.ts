@@ -186,7 +186,6 @@ export class ProblemService {
      }
 
      async getCandidateProblem(problemId: string) {
-
           const problem = await this.problemRepository.findById(problemId)
 
           if (!problem || !problem.isActive) {
@@ -196,7 +195,14 @@ export class ProblemService {
                )
           }
 
-          const { testCases, ...result } = problem.toObject()
-          return result
+          const problemObj = problem.toObject()
+
+          // Filter test cases - only return non-hidden ones
+          const publicTestCases = problemObj.testCases?.filter((tc: any) => !tc.isHidden) || []
+
+          return {
+               ...problemObj,
+               testCases: publicTestCases
+          }
      }
 }
