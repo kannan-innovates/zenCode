@@ -25,6 +25,7 @@ const MentorManagementPage = () => {
   const navigate = useNavigate();
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [resendingMentorId, setResendingMentorId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expertiseOptions, setExpertiseOptions] = useState<string[]>(() =>
     loadExpertiseOptions()
@@ -133,6 +134,7 @@ const MentorManagementPage = () => {
   };
 
   const handleResendInvite = async (mentorId: string) => {
+    setResendingMentorId(mentorId);
     try {
       await adminService.resendInvite(mentorId);
       showSuccess('Invite resent successfully');
@@ -147,6 +149,8 @@ const MentorManagementPage = () => {
           showError(message);
         }
       }
+    } finally {
+      setResendingMentorId(null);
     }
   };
 
@@ -371,9 +375,20 @@ const MentorManagementPage = () => {
                         {mentor.mentorStatus === 'INVITED' ? (
                           <button
                             onClick={() => handleResendInvite(mentor._id)}
-                            className="px-4 py-2 rounded-lg border border-[var(--color-primary)] text-[var(--color-primary)] text-sm font-medium hover:bg-[var(--color-primary)]/10 transition-all"
+                            disabled={resendingMentorId === mentor._id}
+                            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-[var(--color-primary)] text-[var(--color-primary)] text-sm font-medium hover:bg-[var(--color-primary)]/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-w-[124px]"
                           >
-                            Resend Invite
+                            {resendingMentorId === mentor._id ? (
+                              <>
+                                <svg className="animate-spin h-4 w-4 text-[var(--color-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Resending...
+                              </>
+                            ) : (
+                              'Resend Invite'
+                            )}
                           </button>
                         ) : (
                           <button

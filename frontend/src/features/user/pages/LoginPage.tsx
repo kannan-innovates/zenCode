@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,9 +18,20 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'account_blocked') {
+      showError('Your account has been blocked. Contact support.');
+      navigate('/login', { replace: true });
+    } else if (error === 'google_auth_failed') {
+      showError('Google authentication failed. Please try again.');
+      navigate('/login', { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   useEffect(() => {
     if (tokenService.getAccessToken()) {
       navigate('/dashboard', { replace: true });

@@ -191,8 +191,16 @@ export class AuthController {
                // Redirect to frontend with access token
                const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
                res.redirect(`${frontendUrl}/auth/google/success?token=${accessToken}`);
-          } catch (error) {
-               next(error);
+          } catch (error: any) {
+               const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+               console.error('[GoogleCallback] Error:', error);
+               
+               if (error instanceof AppError && error.message === AUTH_MESSAGES.USER_BLOCKED) {
+                    return res.redirect(`${frontendUrl}/login?error=account_blocked`);
+               }
+               
+               // Fallback for any other error during Google Auth
+               res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
           }
      }
 

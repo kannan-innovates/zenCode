@@ -5,6 +5,9 @@ import { CacheService } from "../../../shared/cache/cache.service";
 import { parseExpiryToSeconds } from "../../../shared/utils/expiry.util";
 import { REFRESH_TOKEN_EXPIRY } from "../../../shared/constants/token.constants";
 import { UserRole } from "../../../shared/constants/roles";
+import { AppError } from "../../../shared/utils/AppError";
+import { STATUS_CODES } from "../../../shared/constants/status";
+import { AUTH_MESSAGES } from "../../../shared/constants/messages";
 
 interface GoogleProfile {
   id: string;
@@ -39,7 +42,10 @@ export class GoogleAuthService {
 
       // Check if user is blocked
       if (user.isBlocked) {
-        throw new Error('Account is blocked');
+        throw new AppError(
+          AUTH_MESSAGES.USER_BLOCKED,
+          STATUS_CODES.FORBIDDEN
+        );
       }
     }
 
