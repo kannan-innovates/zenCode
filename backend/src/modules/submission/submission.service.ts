@@ -37,18 +37,18 @@ export class SubmissionService {
                     isSubmission: true,
                });
 
-                // Poll for result (Piston is synchronous but let's be safe)
+                // Poll for result (Piston stores results in memory)
                 let result;
                 let attempts = 0;
-                const maxAttempts = 20;
+                const maxAttempts = 10;
 
                 while (attempts < maxAttempts) {
                      try {
                           result = await this.compilerService.getExecutionResult(execution.token);
                           break;
                      } catch (error: any) {
-                          if (error.statusCode === STATUS_CODES.NOT_FOUND && attempts < maxAttempts - 1) {
-                               await new Promise(resolve => setTimeout(resolve, 500));
+                          if (error.message === 'Execution result not found' && attempts < maxAttempts - 1) {
+                               await new Promise(resolve => setTimeout(resolve, 200));
                                attempts++;
                           } else {
                                throw error;

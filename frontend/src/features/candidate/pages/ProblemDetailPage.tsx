@@ -195,7 +195,9 @@ const ProblemDetailPage = () => {
         stderr: submission.stderr || null,
         compile_output: submission.compile_output || null,
         status: {
-          id: submission.status === 'accepted' ? 3 : 4,
+          id: submission.status === 'accepted' ? 3 : 
+              submission.status === 'compilation_error' ? 6 :
+              submission.status === 'runtime_error' ? 7 : 4,
           description: submission.status,
         },
         time: submission.time || null,
@@ -206,21 +208,23 @@ const ProblemDetailPage = () => {
       setExecutionResult(result);
 
       if (submission.status === 'accepted') {
-        showSuccess('All test cases passed! 🎉');
+        showSuccess('✅ All test cases passed! Accepted!');
       } else if (submission.status === 'compilation_error') {
         showError('Compilation error');
       } else if (submission.status === 'runtime_error') {
         showError('Runtime error');
       } else if (submission.status === 'wrong_answer') {
-        showError('Some test cases failed');
+        showError('Wrong answer - Some test cases failed');
       }
 
       setActiveBottomTab('results');
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.data?.message) {
         setExecutionError(error.response.data.message);
+        showError(error.response.data.message);
       } else {
         setExecutionError('Submission failed. Please try again.');
+        showError('Submission failed. Please try again.');
       }
     } finally {
       setIsSubmitting(false);
@@ -412,7 +416,8 @@ const ProblemDetailPage = () => {
                   results={executionResult?.testResults || []} 
                   compileOutput={executionResult?.compile_output || undefined}
                   runtimeError={executionResult?.stderr || executionError || undefined}
-                  isRunning={isRunning}
+                  isRunning={isRunning || isSubmitting}
+                  isSubmission={isSubmitting}
                 />
               )}
                     {activeBottomTab === 'console' && (

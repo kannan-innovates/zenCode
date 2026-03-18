@@ -13,6 +13,7 @@ interface TestResultPanelProps {
   compileOutput?: string;
   runtimeError?: string;
   isRunning?: boolean;
+  isSubmission?: boolean;
 }
 
 const getOverallStatus = (results: TestResult[]) => {
@@ -26,7 +27,7 @@ const getOverallStatus = (results: TestResult[]) => {
   return { status: 'Wrong Answer', color: 'text-yellow-500', icon: '✗' };
 };
 
-const TestResultPanel = ({ results, compileOutput, runtimeError, isRunning }: TestResultPanelProps) => {
+const TestResultPanel = ({ results, compileOutput, runtimeError, isRunning, isSubmission }: TestResultPanelProps) => {
   const [activeTab, setActiveTab] = useState(0);
 
   if (isRunning) {
@@ -100,9 +101,17 @@ const TestResultPanel = ({ results, compileOutput, runtimeError, isRunning }: Te
           <div className="flex items-center gap-3">
             <span className={`text-2xl ${overall.color}`}>{overall.icon}</span>
             <div>
-              <div className={`text-lg font-bold ${overall.color}`}>{overall.status}</div>
+              <div className="flex items-center gap-2">
+                <div className={`text-lg font-bold ${overall.color}`}>{overall.status}</div>
+                {isSubmission && (
+                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
+                    Submission
+                  </span>
+                )}
+              </div>
               <div className="text-sm text-gray-400">
                 {results.filter(r => r.passed).length} / {results.length} test cases passed
+                {isSubmission && ' (including hidden tests)'}
               </div>
             </div>
           </div>

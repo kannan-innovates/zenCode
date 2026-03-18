@@ -30,17 +30,17 @@ export interface Submission {
 }
 
 export const submissionService = {
-  submit: async (input: SubmitCodeInput) => {
+  submit: async (input: SubmitCodeInput): Promise<Submission> => {
     const response = await api.post<{ data: Submission }>('/submissions', input);
     return response.data.data;
   },
 
-  getMySubmissions: async () => {
+  getMySubmissions: async (): Promise<Submission[]> => {
     const response = await api.get<{ data: Submission[] }>('/submissions/me');
     return response.data.data;
   },
 
-  getSubmission: async (id: string) => {
+  getSubmission: async (id: string): Promise<Submission> => {
     const response = await api.get<{ data: Submission }>(`/submissions/${id}`);
     return response.data.data;
   },
