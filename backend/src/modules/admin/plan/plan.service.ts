@@ -5,12 +5,10 @@ import { AppError } from "../../../shared/utils/AppError";
 import { STATUS_CODES } from "../../../shared/constants/status";
 
 export class PlanService {
-
-     private _planrepo = new PlanRepository();
+     private planRepo = new PlanRepository();
 
      async createPlan(data: CreatePlanInput) {
-
-          const existingPlan = await this._planrepo.findById(data.name);
+          const existingPlan = await this.planRepo.findByName(data.name);
 
           if (existingPlan) {
                throw new AppError(
@@ -19,28 +17,67 @@ export class PlanService {
                );
           }
 
-          return this._planrepo.create(data);
+          // Calculate durationInDays based on billing cycle
+          const durationInDays = data.billingCycle === 'monthly' ? 30 : 365;
+
+          return this.planRepo.create({
+               ...data,
+               durationInDays
+          } as any);
      }
 
      async updatePlan(planId: string, data: UpdatePlanInput) {
+          const plan = await this.planRepo.findById(planId);
 
-          const plan = await this._planrepo.updateById(planId,data);
+          if (!plan) {
+               throw new AppError('Plan not found', STATUS_CODES.NOT_FOUND);
+          }
 
-          if (!plan){
-               throw new AppError(
-                    'Plan not found',
-                    STATUS_CODES.NOT_FOUND
-               );
+          // If billing cycle is updated, recalculate duration
+          if (data.billingCycle) {
+               (data as any).durationInDays = data.billingCycle === 'monthly' ? 30 : 365;
+          }
+
+          const updatedPlan = await this.planRepo.updateById(planId, data);
+
+          if (!updatedPlan) {
+               throw new AppError('Failed to update plan', STATUS_CODES.INTERNAL_SERVER_ERROR);
+          }
+
+          return updatedPlan;
+     }
+
+     async getPlansForAdmin() {
+          return this.planRepo.listAll();
+     }
+
+     async getActivePlans() {
+          return this.planRepo.listActive();
+     }
+
+     async getPlanById(planId: string) {
+          const plan = await this.planRepo.findById(planId);
+
+          if (!plan) {
+               throw new AppError('Plan not found', STATUS_CODES.NOT_FOUND);
           }
 
           return plan;
      }
 
-     async getPlansForAdmin(){
-          return this._planrepo.listAll();
-     }
+     async togglePlanStatus(planId: string) {
+          const plan = await this.planRepo.findById(planId);
 
-     async getActivePlans(){
-          return this._planrepo.listActive();
+          if (!plan) {
+               throw new AppError('Plan not found', STATUS_CODES.NOT_FOUND);
+          }
+
+          const updatedPlan = await this.planRepo.updateById(planId, { isActive: !plan.isActive });
+
+          if (!updatedPlan) {
+               throw new AppError('Failed to toggle plan status', STATUS_CODES.INTERNAL_SERVER_ERROR);
+          }
+
+          return updatedPlan;
      }
 }

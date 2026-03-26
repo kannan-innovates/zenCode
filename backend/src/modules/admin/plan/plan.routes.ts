@@ -27,6 +27,13 @@ router.patch(
      controller.updatePlan
 );
 
+router.patch(
+     "/:id/toggle-status",
+     authMiddleware,
+     roleGuard(UserRole.ADMIN),
+     controller.togglePlanStatus
+);
+
 router.get(
      "/admin",
      authMiddleware,
