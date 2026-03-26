@@ -1,8 +1,9 @@
 import { Plan } from "./plan.model";
+import { CreatePlanInput } from "./types/create-plan.input";
+import { UpdatePlanInput } from "./types/update-plan.input";
 
 export class PlanRepository {
-
-     async create(data: any) {
+     async create(data: CreatePlanInput) {
           return Plan.create(data);
      }
 
@@ -14,7 +15,7 @@ export class PlanRepository {
           return Plan.findById(id);
      }
 
-     async updateById(id: string, data: any) {
+     async updateById(id: string, data: UpdatePlanInput) {
           return Plan.findByIdAndUpdate(id, data, { new: true });
      }
 

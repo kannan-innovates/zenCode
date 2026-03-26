@@ -1,7 +1,10 @@
+import { PlanFeature } from './create-plan.input';
+
 export interface UpdatePlanInput {
      name?: string;
      price?: number;
-     durationInDays?: number;
-     features?: string[];
+     billingCycle?: 'monthly' | 'yearly';
+     description?: string;
+     features?: PlanFeature[];
      isActive?: boolean;
 }
