@@ -3,12 +3,14 @@ import { planService, type Plan } from '../services/plan.service';
 import { showSuccess, showError } from '../../../shared/utils/toast.util';
 import AdminSidebar from '../components/AdminSidebar';
 import EditPlanModal from '../components/EditPlanModal';
+import CreatePlanModal from '../components/CreatePlanModal';
 
 const PlanManagementPage = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     loadPlans();
@@ -69,9 +71,20 @@ const PlanManagementPage = () => {
       <div className="flex-1">
         {/* Header */}
         <div className="bg-[#0a0a0a] border-b border-[#1c1c1c] p-6">
-          <div className="max-w-7xl">
-            <h1 className="text-white text-3xl font-bold mb-2">Premium Plan Configuration</h1>
-            <p className="text-gray-400">Manage platform subscription offerings</p>
+          <div className="max-w-7xl flex items-center justify-between">
+            <div>
+              <h1 className="text-white text-3xl font-bold mb-2">Premium Plan Configuration</h1>
+              <p className="text-gray-400">Manage platform subscription offerings</p>
+            </div>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--color-primary)] hover:bg-blue-600 text-white font-medium transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Plan
+            </button>
           </div>
         </div>
 
@@ -80,7 +93,6 @@ const PlanManagementPage = () => {
           {plans.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-500 text-lg mb-4">No plans configured yet</div>
-              <p className="text-gray-600 text-sm">Contact system administrator to set up Stripe integration</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -175,6 +187,17 @@ const PlanManagementPage = () => {
           plan={editingPlan}
           onClose={handleModalClose}
           onSave={handleModalSave}
+        />
+      )}
+
+      {/* Create Plan Modal */}
+      {isCreateModalOpen && (
+        <CreatePlanModal
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={() => {
+            loadPlans();
+            setIsCreateModalOpen(false);
+          }}
         />
       )}
     </div>
