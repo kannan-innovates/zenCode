@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { planService, type CreatePlanInput } from '../services/plan.service';
+import { planService, type Plan, type CreatePlanInput, type UpdatePlanInput } from '../services/plan.service';
 import { showSuccess, showError } from '../../../shared/utils/toast.util';
 
 const featureSchema = z.object({
@@ -11,7 +11,7 @@ const featureSchema = z.object({
   enabled: z.boolean(),
 });
 
-const createPlanSchema = z.object({
+const planSchema = z.object({
   name: z.string().min(3, 'Plan name must be at least 3 characters'),
   price: z.string()
     .min(1, 'Price is required')
@@ -26,19 +26,21 @@ const createPlanSchema = z.object({
   features: z.array(featureSchema).min(1, 'At least one feature required'),
 });
 
-type FormData = z.infer<typeof createPlanSchema>;
+type FormData = z.infer<typeof planSchema>;
 
-interface CreatePlanModalProps {
+interface PlanModalProps {
+  plan?: Plan; // if provided → edit mode; otherwise → create mode
   onClose: () => void;
   onSave: () => void;
 }
 
-const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
+const PlanModal = ({ plan, onClose, onSave }: PlanModalProps) => {
+  const isEditing = !!plan;
   const [isSaving, setIsSaving] = useState(false);
   const [access, setAccess] = useState({
-    mentorBooking: false,
-    premiumProblems: false,
-    aiHints: false,
+    mentorBooking: plan?.access?.mentorBooking ?? false,
+    premiumProblems: plan?.access?.premiumProblems ?? false,
+    aiHints: plan?.access?.aiHints ?? false,
   });
 
   const {
@@ -47,12 +49,16 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
     control,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(createPlanSchema),
+    resolver: zodResolver(planSchema),
     defaultValues: {
-      price: '',
-      billingCycle: 'monthly',
-      intervalCount: '1',
-      features: [{ name: '', description: '', enabled: true }],
+      name: plan?.name ?? '',
+      price: plan ? String(plan.price) : '',
+      billingCycle: plan?.billingCycle ?? 'monthly',
+      intervalCount: plan ? String(plan.intervalCount ?? 1) : '1',
+      description: plan?.description ?? '',
+      features: plan?.features?.length
+        ? plan.features.map((f) => ({ name: f.name, description: f.description ?? '', enabled: f.enabled }))
+        : [{ name: '', description: '', enabled: true }],
     },
   });
 
@@ -61,31 +67,44 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
     name: 'features',
   });
 
+  const handleAccessToggle = (key: keyof typeof access) => {
+    setAccess((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSaving(true);
     try {
-      const createData: CreatePlanInput = {
-        ...data,
-        price: Number(data.price),
-        intervalCount: Number(data.intervalCount),
-        access,
-        stripeProductId: '', // Backend will create
-        stripePriceId: '', // Backend will create
-      };
-
-      await planService.createPlan(createData);
-      showSuccess('Plan created successfully! Stripe product and price have been configured.');
+      if (isEditing) {
+        const updateData: UpdatePlanInput = {
+          name: data.name,
+          price: Number(data.price),
+          billingCycle: data.billingCycle,
+          intervalCount: Number(data.intervalCount),
+          description: data.description,
+          features: data.features as UpdatePlanInput['features'],
+          access,
+        };
+        await planService.updatePlan(plan!._id, updateData);
+        showSuccess('Plan updated successfully!');
+      } else {
+        const createData: CreatePlanInput = {
+          ...data,
+          price: Number(data.price),
+          intervalCount: Number(data.intervalCount),
+          access,
+          stripeProductId: '',
+          stripePriceId: '',
+        };
+        await planService.createPlan(createData);
+        showSuccess('Plan created successfully! Stripe product and price have been configured.');
+      }
       onSave();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create plan';
+      const message = error.response?.data?.message || (isEditing ? 'Failed to update plan' : 'Failed to create plan');
       showError(message);
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleAccessToggle = (feature: keyof typeof access) => {
-    setAccess((prev) => ({ ...prev, [feature]: !prev[feature] }));
   };
 
   return (
@@ -93,7 +112,9 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
       <div className="bg-[#0f0f0f] border border-[#2a2d3a] rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-[#0f0f0f] border-b border-[#2a2d3a] p-6 flex items-center justify-between z-10">
-          <h2 className="text-white text-xl font-bold">Create New Plan</h2>
+          <h2 className="text-white text-xl font-bold">
+            {isEditing ? 'Edit Plan' : 'Create New Plan'}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
@@ -124,7 +145,7 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
             )}
           </div>
 
-          {/* Price & Billing Cycle */}
+          {/* Price, Billing Cycle, Interval Count */}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="text-white text-sm font-medium uppercase tracking-wide block mb-2">
@@ -154,6 +175,11 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
               </select>
+              {isEditing && (
+                <span className="text-gray-500 text-xs mt-1 block">
+                  ⚠ Changing billing cycle requires a new Stripe price ID.
+                </span>
+              )}
             </div>
 
             <div>
@@ -193,7 +219,7 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
             )}
           </div>
 
-          {/* Features (Marketing list) */}
+          {/* Marketing Features */}
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-white text-sm font-medium uppercase tracking-wide">
@@ -207,7 +233,9 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
                 + Add Feature
               </button>
             </div>
-            <p className="text-gray-500 text-xs mb-3">These items will be displayed as bullet points on the pricing card.</p>
+            <p className="text-gray-500 text-xs mb-3">
+              These items are displayed as bullet points on the pricing card.
+            </p>
 
             <div className="space-y-3">
               {fields.map((field, index) => (
@@ -238,19 +266,22 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
                 </div>
               ))}
             </div>
-            {errors.features && (
+            {errors.features && typeof errors.features.message === 'string' && (
               <span className="text-red-500 text-sm mt-1">{errors.features.message}</span>
             )}
           </div>
 
-          {/* Technical Access Configuration (Feature toggles) */}
+          {/* Platform Access Configuration */}
           <div>
             <label className="text-white text-sm font-medium uppercase tracking-wide block mb-1">
               Platform Access Configuration
             </label>
-            <p className="text-gray-500 text-xs mb-3">Enable or disable actual application features for this plan.</p>
-            
-            <div className="bg-[#1a1a1a] border border-[#2a2d3a] rounded-lg p-4 space-y-3">
+            <p className="text-gray-500 text-xs mb-3">
+              Enable or disable actual application features for this plan.
+            </p>
+
+            <div className="bg-[#1a1a1a] border border-[#2a2d3a] rounded-lg p-4 space-y-4">
+              {/* Premium Problems */}
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-white font-medium">Access to Premium Problems</div>
@@ -271,6 +302,7 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
                 </button>
               </div>
 
+              {/* AI Hints */}
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-white font-medium">AI Hints for Premium Problems</div>
@@ -291,6 +323,7 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
                 </button>
               </div>
 
+              {/* Mentor Booking */}
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-white font-medium">Mentor Booking Access</div>
@@ -327,7 +360,9 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
               disabled={isSaving}
               className="flex-1 h-11 rounded-lg bg-[var(--color-primary)] hover:bg-blue-600 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSaving ? 'Creating Plan...' : 'Create Plan'}
+              {isSaving
+                ? (isEditing ? 'Saving...' : 'Creating...')
+                : (isEditing ? 'Save Changes' : 'Create Plan')}
             </button>
           </div>
         </form>
@@ -336,4 +371,4 @@ const CreatePlanModal = ({ onClose, onSave }: CreatePlanModalProps) => {
   );
 };
 
-export default CreatePlanModal;
+export default PlanModal;
