@@ -16,7 +16,7 @@ export class PlanRepository {
      }
 
      async updateById(id: string, data: UpdatePlanInput) {
-          return Plan.findOneAndUpdate({ _id: id, isArchived: false }, data, { new: true });
+          return Plan.findOneAndUpdate({ _id: id, isArchived: false }, { $set: data }, { new: true });
      }
 
      async listActive() {
